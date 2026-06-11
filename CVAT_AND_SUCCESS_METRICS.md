@@ -59,3 +59,11 @@ Refer to [03_METHODOLOGY.md:L174-185](file:///Users/chris/Documents/Capstone/03_
 | **Battery Quarantine Error Rate** | **Zero-Tolerance** | Zero false negatives allowed for the Battery class on the held-out quarantine test |
 | **Inference Speed** | **≥ 25 FPS** | Latency ≤ 500ms on demo hardware |
 | **Purity Rate Accuracy** | **±2%** | Comparison of system-reported vs. ground-truth purity |
+
+---
+
+## 3. Initial Model Settings
+
+Here is the visual representation of your initial model training parameters:
+
+![YOLOv8s-seg Initial Model Configuration](/Users/chris/Documents/Capstone/initial_model_settings.png)
