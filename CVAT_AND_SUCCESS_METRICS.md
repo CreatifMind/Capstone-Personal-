@@ -2,6 +2,8 @@
 
 This document outlines the dataset annotation requirements using CVAT and the success metrics established for the three AI engineers and the overall model.
 
+![Team Success Metrics Dashboard](/Users/chris/Documents/Capstone/success_metrics_dashboard.png)
+
 ---
 
 ## 1. Determining Which Datasets Require Annotations using CVAT
