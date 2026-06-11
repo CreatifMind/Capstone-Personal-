@@ -108,7 +108,7 @@ Battery (Person B, Group 2) and metal (Person C, Group 3) are visually similar a
 
 **How the workflow converges into one model:**
 
-```
+```text
 Person A labels Group 1          Person B labels Group 2          Person C labels Group 3
 (plastic / paper / cardboard)    (food / battery / trash)         (metal / glass / textile)
          │                                │                                │
@@ -153,11 +153,11 @@ The 3 group zips serve Phase 3 only. From Phase 6 onward, there is one dataset a
 
 The structure is not arbitrary. It is derived from two established frameworks that define what a rigorous, defensible model-building process looks like.
 
-**Framework 1 — CRISP-DM (Cross-Industry Standard Process for Data Mining)**
+#### Framework 1 — CRISP-DM (Cross-Industry Standard Process for Data Mining)
 
 CRISP-DM is the industry standard for building data-driven systems. It defines six stages: Business Understanding, Data Understanding, Data Preparation, Modelling, Evaluation, and Deployment (Shearer, 2000). Every one of our 10 phases belongs to one of these six stages. No stage is skipped.
 
-**Framework 2 — DMAIC (Lean Six Sigma)**
+#### Framework 2 — DMAIC (Lean Six Sigma)
 
 DMAIC is a quality management framework: Define, Measure, Analyse, Improve, Control. It is designed to ensure that improvements are measured against baselines, not just claimed. Dr. Narishah's research context directly references this framework. Our pipeline maps to it explicitly.
 
@@ -501,7 +501,7 @@ One change at a time is slower, but every improvement is traceable, citable, and
 
 ---
 
-**Tuning Run 1 — Higher resolution images (imgsz: 640 → 1280 pixels)**
+#### Tuning Run 1 — Higher resolution images (imgsz: 640 → 1280 pixels)
 
 Think of the difference between reading a document on a small phone screen versus a large monitor. At 640 pixels, small objects like batteries appear very small in the image — the AI has fewer pixels of information to work with when making its decision. At 1280 pixels, the same battery appears twice as large in each dimension (four times the pixel area). The AI has significantly more detail to detect the difference between a battery and a small aluminium can.
 
@@ -511,7 +511,7 @@ Expected effect: +3–8% improvement in battery accuracy specifically.
 
 ---
 
-**Tuning Run 2 — Class loss weighting (upweight battery and textile)**
+#### Tuning Run 2 — Class loss weighting (upweight battery and textile)
 
 During training, the AI optimises a score that summarises how wrong its predictions are. By default, being wrong about a battery counts the same as being wrong about any other category. We change this by making errors on battery and textile count more — specifically 2× more for battery and 1.5× more for textile.
 
@@ -525,7 +525,7 @@ Expected effect: improved precision and recall on the two hardest minority categ
 
 ---
 
-**Tuning Run 3 — Copy-Paste Augmentation**
+#### Tuning Run 3 — Copy-Paste Augmentation
 
 Copy-paste augmentation creates synthetic training scenarios by taking an object from one image and pasting it on top of another image. The result is a new training photo showing two overlapping items.
 
@@ -539,7 +539,7 @@ Expected effect: improved mAP@0.5:0.95 — the strict accuracy metric that measu
 
 ---
 
-**Tuning Run 4 — Rotation Augmentation (degrees: 0 → ±30°)**
+#### Tuning Run 4 — Rotation Augmentation (degrees: 0 → ±30°)
 
 Items on a conveyor belt do not arrive perfectly upright. A plastic bottle might be lying on its side, tilted 45 degrees, or tumbling as the belt moves. If the AI has only seen upright items during training, it will struggle to classify the same item at an unusual angle.
 
@@ -578,7 +578,7 @@ Before adding more tuning runs, read the results table and identify exactly whic
 
 ---
 
-**Extended Run 5 — Switch optimizer from SGD to AdamW**
+#### Extended Run 5 — Switch optimizer from SGD to AdamW
 
 SGD with momentum is the standard YOLO optimizer and is the correct starting point. However, for datasets with high class imbalance or noisy labels — both of which apply to this project — AdamW sometimes produces better convergence. AdamW handles irregular gradient surfaces more gracefully than SGD because it adapts the learning rate per parameter rather than using one global rate.
 
@@ -590,7 +590,7 @@ Setting: `optimizer=AdamW`, `lr0=0.001` (lower than SGD default — AdamW is sen
 
 ---
 
-**Extended Run 6 — Focal Loss (fl_gamma > 0)**
+#### Extended Run 6 — Focal Loss (fl_gamma > 0)
 
 Focal loss is a modification to the standard cross-entropy loss that reduces the weight given to easy, already-correctly-classified examples. The effect: the model stops spending training capacity on items it already recognises well (clear plastic bottles, obvious cardboard boxes) and redirects that capacity to the hard examples it keeps getting wrong (batteries that look like metal cans, textiles that look like general trash).
 
@@ -602,7 +602,7 @@ When to try: if battery AP remains below 0.80 after Run 2's class weight upweigh
 
 ---
 
-**Extended Run 7 — Mixup Augmentation**
+#### Extended Run 7 — Mixup Augmentation
 
 Mixup creates training images by blending two photos together at partial transparency — for example, a plastic bottle image blended 40% with a cardboard image. The label is a weighted combination: 40% plastic, 60% cardboard.
 
@@ -616,7 +616,7 @@ When to try: if generalisation gap exceeds 10% or precision is below 0.85 after 
 
 ---
 
-**Extended Run 8 — Label Smoothing**
+#### Extended Run 8 — Label Smoothing
 
 Label smoothing prevents the model from becoming overconfident. In standard training, the correct label is 100% ("this is definitely a battery"). Label smoothing changes it to, say, 95% ("this is very likely a battery but there is 5% uncertainty"). This sounds counter-intuitive — why introduce fake uncertainty? — but overconfident models generalise poorly. A model trained to be 100% certain tends to fail badly on items that are slightly different from its training examples.
 
@@ -719,7 +719,7 @@ The segmentation capability matters for two reasons. First, on a conveyor belt w
 
 Every photo passes through three sequential layers inside the model:
 
-**Layer 1 — The Visual Reading Engine (CSP-DarkNet Backbone)**
+#### Layer 1 — The Visual Reading Engine (CSP-DarkNet Backbone)
 
 This layer reads the raw photo and extracts visual patterns: edges (where does one surface end and another begin?), textures (is this surface smooth, ridged, or rough?), shapes (is this object cylindrical, flat, or irregular?), and colours at multiple levels of detail.
 
@@ -727,11 +727,11 @@ The model processes the same photo at multiple zoom levels simultaneously — a 
 
 This layer was pre-trained on 330,000 photos of 80 everyday objects. It already knows how to see. We do not retrain it — we reuse it.
 
-**Layer 2 — The Scale Merger (PANet Neck)**
+#### Layer 2 — The Scale Merger (PANet Neck)
 
 The reading engine produces separate outputs for each zoom level. The scale merger combines these into a single unified understanding of the photo — ensuring that a small battery partially hidden under a plastic bag is still detected, because the close-up view caught the metallic edge even though the wide view showed only plastic.
 
-**Layer 3 — The Decision Head (Decoupled Classification + Segmentation)**
+#### Layer 3 — The Decision Head (Decoupled Classification + Segmentation)
 
 This is where the model makes its final outputs. Critically, the decision head has two separate sub-components: one for classification (what is this object?) and one for segmentation (what is its exact outline?). These two sub-components do not share parameters.
 
@@ -802,7 +802,7 @@ This feedback loop means the system deployed in month 1 and the system running i
 
 We measure at four points across the project. Each point must be a measurable improvement over the previous one. If any step fails to improve on the previous benchmark, that step failed — regardless of how good the final number looks.
 
-```
+```text
 BENCHMARK 1          BENCHMARK 3          BENCHMARK 2          FINAL TARGET
 ─────────────        ─────────────        ─────────────        ─────────────
 Blind majority       Per-person           Full merged          Tuned master
@@ -832,7 +832,7 @@ Every target has at least one realistic failure mode. Knowing these in advance m
 
 ---
 
-**Risk: Battery cannot be distinguished from metal cans**
+### Risk: Battery cannot be distinguished from metal cans
 
 What it threatens: Battery accuracy (≥ 80%) and the zero-tolerance Phase 9 gate
 
@@ -847,7 +847,7 @@ How we mitigate it:
 
 ---
 
-**Risk: The model always guesses food/organic waste**
+### Risk: The model always guesses food/organic waste
 
 What it threatens: Precision and recall on minority classes (battery, cardboard, textile)
 
@@ -860,7 +860,7 @@ How we mitigate it:
 
 ---
 
-**Risk: The model performs well on training photos but fails on new photos**
+### Risk: The model performs well on training photos but fails on new photos
 
 What it threatens: Generalisation gap (≤ 10%)
 
@@ -874,7 +874,7 @@ How we mitigate it:
 
 ---
 
-**Risk: Items overlap on the conveyor and confuse the AI**
+### Risk: Items overlap on the conveyor and confuse the AI
 
 What it threatens: mAP@0.5:0.95 (≥ 70%) — the strict boundary accuracy metric
 
@@ -886,7 +886,7 @@ How we mitigate it:
 
 ---
 
-**Risk: The operator always clicks "confirm" without really checking**
+### Risk: The operator always clicks "confirm" without really checking
 
 What it threatens: Active learning loop quality — if all corrections are wrong, the retrain degrades performance
 
@@ -951,7 +951,7 @@ White, G., Cabrera, C., Palade, A., & Li, F. (2020). WasteNet: Waste classificat
 
 ## PART 10 — PRE-TRAINING CHECKLIST
 
-```
+```text
 Before Phase 7:
 [ ] All [SUGGESTED] ranges replaced with actual training results after runs complete
 [ ] Battery AP confirmed as a SEPARATE column in the training results CSV
