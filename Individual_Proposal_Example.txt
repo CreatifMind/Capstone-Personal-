@@ -1,0 +1,1333 @@
+--- PAGE 1 ---
+
+ 
+ 
+ASSIGNMENT COVER SHEET 
+PROGRAMME  : Bachelor of Business Analytics 
+SUBJECT CODE AND TITLE : BAA3124 BUSINESS INFORMATION SYSTEMS DEVELOPMENT 
+ASSIGNMENT TITLE : BISD Individual Proposal – Machine Learning PaveX 
+   
+LECTURER : Dr. Narishah ASSIGNMENT DUE DATE: 15-10-2025 
+ 
+ 
+STUDENT’S DECLARATION 
+1. I hereby declare that this assignment is based on my own work except where acknowledgement of sources 
+is made.  
+2. I also declare that this work has not been previously submitted or concurrently submitted for any other 
+courses in Sunway University/College or other institutions.  
+[ Submit “Turn-it-in” report (please tick √): Yes __√__ No _____ ] 
+ 
+NO. NAME STUDENT ID NO. SIGNATURE DATE 
+1. Koh Rui Xi 23027592 Lucy 15/10/2025 
+2.     
+ 
+E-mail Address / Addresses (according to the order of names above):  
+1. 23027592@imail.sunway.edu.my 4. 
+2. 5. 
+ 
+ 
+APPROVAL FOR LATE SUBMISSION OF ASSIGNMENT (If applicable)  
+IF extension is granted, what is the revised due date? ______________________________________________ 
+ 
+Signature of Lecturer: ____________________________ Date: ____________________________ 
+ 
+Marker’s Comments: 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+Marks and / or Grade Awarded: _____________________________    Date:_______________________
+
+--- PAGE 2 ---
+
+ 
+Title: YOLOv8-seg-Based Automated Pothole Detection with Roboflow Annotation 
+ 
+Abstract 
+This project addresses the challenges faced by Malaysia’s  Jabatan Kerja Raya (JKR)  in 
+maintaining road safety, caused by the manual inspection and verification of potholes, which leads 
+to high workloads, inconsistencies, and stress for employees. The objective is to automate pothole 
+detection and severity assessment using the  YOLOv8-seg segmentation model , aimed at 
+improving efficiency and consistency. The scope includes  data collection, training the model  on 
+annotated pothole images, and  validating its performance using metrics such 
+as mAP, Precision, Recall, IoU, and  Dice Similarity Coefficient (DSC) . By automating the 
+verification process, this project aims to reduce the manual workload, improve severity assessment 
+consistency, and enhance operational efficiency for JKR. The results of this project are expected 
+to streamline pothole detection , contributing to  faster road repairs  and a  healthier work 
+environment for JKR personnel, with potential for broader application in other regions facing 
+similar challenges. 
+ 
+ 
+Keywords: 
+Pothole detection; Machine learning; YOLOv8-seg; Segmentation model; Ground truth data; 
+Image annotation; Real-time pothole detection; Severity assessment; Automation; Road safety; 
+Model evaluation 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- PAGE 3 ---
+
+ 
+1.0 Introduction 
+1.1 Context and Significance 
+Malaysia’s Public Works Department (JKR) plays a vital role in sustaining national mobility and 
+safety through continuous road maintenance. Yet, despite initiatives such as the MyJalan KKR 
+mobile application that allow citizens to report road damage directly, the inspection and 
+verification process remains largely manual . Each submission must still be visually examined, 
+verified, and categorized by JKR officers before scheduling repairs. This repetitive, high-pressure 
+workflow has gradually created a toxic working environment , where officers face mounting 
+workloads, inconsistent reporting formats, and unrealistic response deadlines (Rasee et al., 2025; 
+Bukhari & Aman, 2023). JKR’s “Zero Pothole” pledge, which mandates that temporary repairs be 
+completed within 24 hours and permanent ones within three days, further intensifies the pressure 
+to act quickly under data uncertainty (Wong, 2020). Moreover, as citizen participation increases 
+through MyJalan, so too does the volume of unstandardized image submissions, many of which 
+contain unclear or duplicated information (Rasee et al., 2025). Officers must interpret these images 
+manually, often w ithout uniform measurement criteria, leading to fatigue, human err or, and 
+inconsistent severity classification—a hallmark of the existing toxic environment. 
+ 
+To mitigate these issues, machine learning (ML)  offers an objective and scalable solution. By 
+employing a segmentation -based model such as YOLOv8-seg, potholes can be automatically 
+detected and quantified using geometric features extracted from road images. This project 
+strengthens model reliability through a ground-truth dataset  collected with direct physical 
+measurements, allowing calibration of image -based estimates into actual diameters and areas. 
+Automating this early verification stage relieves JKR personnel from tedious screening tasks, 
+thereby reducing operational stress and improving the consistency of severity assessments. 
+ 
+Research Questions: 
+RQ1: How can machine -learning techniques be trained to automatically detect and segment 
+potholes from uncontrolled road images? 
+RQ2: How can ground -truth measurements be used to calibrate the model for reliable severity 
+estimation? 
+RQ3: To what extent can an automated ML framework reduce JKR officers’ manual workload 
+and improve verification consistency? 
+ 
+Research Objevtives: 
+RO1: To design and implement a YOLOv8-seg model for pothole segmentation under real-world 
+imaging conditions. 
+RO2: To construct a ground -truth dataset containing physical measurements for severity 
+calibration. 
+RO3: To evaluate model performance and its potential to reduce manual verification tasks within 
+JKR’s workflow. 
+--- PAGE 4 ---
+
+ 
+1.2 Scope, Assumptions, and Constraints 
+Scope 
+This proposal is primarily focused on the machine learning component of the PaveX system, which 
+will automate the process of pothole detection and severity assessment. The scope of the project 
+includes data preparation, model training, and model validation using YOLOv8-seg, a state -of-
+the-art segmentation model. Specifically, the proposal outlines the development of the YOLOv8-
+seg model to segment potholes in road images, including the use of a ground-truth dataset for 
+calibration. This dataset will consist of real -world pothole images, accompanied by physical 
+measurements (such as diameter, depth, and area) for accurate severity estimation. By integrating 
+machine learning  into the pothole detection process, the project aims to relieve the manual 
+verification burden on JKR personnel, ultimately improving workflow efficiency and accuracy in 
+pothole assessments. 
+Assumptions 
+1. Training Data: The training images will be sourced from publicly available datasets 
+(e.g., Roboflow) and locally collected pothole images from Malaysia. 
+2. Ground Truth Accuracy: The ground-truth measurements (e.g., area, diameter, and depth) 
+for model calibration are assumed to be accurate, enabling the conversion of image -based 
+estimates into real-world units. 
+3. Image Quality and Capture Conditions: The images for both training and validation are 
+assumed to be captured using smartphones with varying quality and angles. Variations in 
+quality and angle will be addressed through data augmentation techniques. 
+ 
+Constraints 
+1. Limited Annotated Datasets: Limited access to annotated Malaysian pothole datasets 
+may restrict model generalization and require fine-tuning for local pothole characteristics. 
+2. Depth Estimation : Depth estimation will rely on geometric approximation  instead of 
+specialized sensors (e.g., LiDAR), which may lack precision compared to advanced 
+technologies. 
+3. Time and Hardware Limitations: Project duration and hardware constraints may limit 
+extensive hyperparameter tuning and experimentation. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- PAGE 5 ---
+
+ 
+1.3 Claimed Contributions 
+Technical Contribution 
+ 
+The primary technical contribution of this project is the development of a YOLOv8-seg-based 
+framework for pothole detection  and severity assessment . By fine -tuning this model using a 
+ground-truth dataset consisting of real -world pothole images and direct physical measurements, 
+this project will enable automatic pothole segmentation and severity scoring. The use of YOLOv8-
+seg, a state-of-the-art segmentation model, will provide high accuracy in detecting potholes, even 
+in complex road conditions with varying lighting and camera angles. This framework can be 
+adapted and extended to future pothole detection applications in Malaysia, offering an objectively 
+scalable solution to road maintenance. 
+Organizational Contribution 
+From an organizational perspective, this project aims to automate the early verification of pothole 
+reports within the JKR system , significantly reducing the manual inspection workload . By 
+integrating machine learning, particularly YOLOv8-seg, into the pothole detection workflow, the 
+system will decrease the time spent on image verification  and severity classification. This will 
+allow JKR officers  to focus on more strategic tasks , such as repair prioritization and resource 
+allocation, thereby improving the overall efficiency of the road maintenance process. Moreover, 
+by automating these processes, the project helps alleviate the stress and fatigue associated with 
+manual inspection , which currently contributes to the toxic work environment  in JKR’s 
+maintenance teams. 
+ 
+Empirical Contribution 
+ 
+An empirical contribution of this project is the creation of a locally measured ground-truth dataset 
+for pothole detection . This dataset, which includes real-world pothole measurements  such as 
+diameter, depth, and area, can serve as a valuable reference for future research in pothole detection 
+and road condition monitoring. By incorporating real-world pothole dimensions into the model’s 
+calibration, this dataset will enable more accurate severity estimation and provide a benchmark for 
+future models targeting pothole detection. Additionally, it will contribute to the development of 
+local datasets  that can be used to improve the accuracy  of machine learning models  in road 
+maintenance systems within Malaysia. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- PAGE 6 ---
+
+ 
+2.0 Related work 
+Recent studies have increasingly adopted YOLOv8-seg for pothole detection  and road hazard 
+classification due to its ability to provide pixel-level segmentation for accurate identification. Wu 
+et al. (2024) improved YOLOv8-seg for instance segmentation of tea garden roads, using MSDA-
+CBAM and DR-Neck to enhance model efficiency and facilitate edge deployment for real-time 
+processing. Similarly, Khare et al. (2023) applied YOLOv8 for detecting potholes, sewer covers, 
+and manholes, emphasizing the role of supervised learning and Roboflow for data annotation to 
+create a robust dataset for real-time detection of road hazards. 
+In their work, Yusuf et al. (2025) evaluated the effect of image augmentation techniques such as 
+rotation, flipping, and brightness adjustments on improving YOLO models for pothole detection, 
+demonstrating that augmentation significantly enhances model robustness  and generalization 
+across various conditions. Nurcahyo et al. (2024)  extended the application of YOLOv8 to real-
+time pothole detection  and localization, emphasizing the importance of data augmentation and 
+supervised learning for creating high-quality datasets. 
+The study by Elgamily et al. (2025) applied YOLOv8 for detecting road hazards in remote sensing 
+images, utilizing supervised learning  and Roboflow for dataset annotation. It demonstrated the 
+model's ability to detect potholes across varied environmental conditions, although real-time edge 
+deployment remains an area requiring further. Perumal and Ramasamy (2024)  focused on 
+YOLOv8 for real-time pothole detection  in autonomous vehicles , highlighting the use of 
+supervised learning and Roboflow for data collection and model training to improve detection 
+accuracy and processing speed in dynamic environments. 
+Lastly, Wijaya et al. (2024)  explored the use of YOLOv8 for pothole detection in road images 
+using open datasets, highlighting the role of Roboflow for data annotation and demonstrating how 
+supervised learning can improve detection performance. 
+ 
+ 
+Table Summary of Related Work 
+Author(s) Title Summary/ Focus Area Identified Research Gaps 
+Wu et al. 
+(2024) 
+ 
+Instance 
+Segmentation 
+of Tea Garden 
+Roads Based 
+on YOLOv8 -
+seg 
+Focuses on improving YOLOv8-
+seg for instance segmentation in tea 
+garden roads . The study uses 
+MSDA-CBAM and DR-Neck for 
+enhanced feature extraction and 
+model efficiency, targeting edge 
+deployment. 
+Needs real-world validation 
+for urban pothole detection  
+and testing across varied 
+road conditions. 
+--- PAGE 7 ---
+
+ 
+Khare et 
+al. (2023) 
+YOLOv8-
+Based Visual 
+Detection of 
+Road 
+Hazards: 
+Potholes, 
+Sewer 
+Covers, and 
+Manholes 
+The article applies YOLOv8 for 
+detecting potholes, sewer covers , 
+and manholes, focusing on 
+supervised learning and Roboflow 
+for creating annotated datasets. The 
+study highlights real-time detection 
+capabilities for road hazards. 
+Further hyperparameter 
+tuning needed for real-time 
+deployment in diverse road 
+conditions (weather, 
+traffic). 
+Yusuf et 
+al. (2025) 
+Evaluating 
+the Impact of 
+Image 
+Augmentation 
+on Deep 
+Learning-
+Based Road 
+Pothole 
+Detection 
+The study evaluates how image 
+augmentation methods like 
+rotation, flipping, and brightness 
+adjustments impact YOLO models 
+for pothole detection. The results 
+show significant improvements in 
+model robustness and performance 
+under varied conditions. 
+Further exploration needed 
+on real-world effectiveness  
+of augmentation in extreme 
+weather conditions. 
+Nurcahyo 
+et al., 2024 
+Real-Time 
+Potholes 
+Detection and 
+Localization 
+using 
+YOLOv8 
+This study focuses on the 
+application of YOLOv8 for real-
+time pothole detection  and 
+localization. It emphasizes the 
+importance of supervised learning  
+and data augmentation  with 
+Roboflow to create accurate 
+datasets for pothole detection. 
+More validation needed for 
+pothole detection in low-
+light environments  and 
+high-traffic road 
+conditions. 
+Elgamily 
+et al., 2025 
+Enhanced 
+Object 
+Detection in 
+Remote 
+Sensing 
+Images Using 
+YOLOv7 and 
+YOLOv8 
+This article applies YOLOv8 for 
+road hazard detection  in remote 
+sensing images , utilizing 
+supervised learning and Roboflow 
+for dataset annotation. It explores 
+detection accuracy for potholes 
+under varied environmental 
+conditions. 
+Real-time edge deployment 
+and integration with sensor 
+data for pothole detection 
+still needs exploration. 
+Perumal & 
+Ramasamy 
+(2024) 
+Deep 
+Learning 
+Algorithm 
+based Real -
+Time Pothole 
+and Barricade 
+This study focuses on YOLOv8 for 
+real-time pothole detection  in 
+autonomous vehicles , utilizing 
+supervised learning and Roboflow 
+for data collection and model 
+training. The goal is to improve 
+Needs integration with real-
+time data sources  and 
+improved robustness  in 
+adverse weather conditions. 
+--- PAGE 8 ---
+
+ 
+Detection and 
+Warning 
+System 
+accuracy and real-time processing  
+for pothole detection. 
+Wijaya et 
+al., (2024) 
+Enhancing 
+Infrastructure 
+Monitoring: 
+Pothole 
+Detection in 
+Road Images 
+Using 
+YOLOv8 and 
+Open 
+Datasets 
+This study explores YOLOv8 for 
+pothole detection  in road images 
+using open datasets . It 
+demonstrates the use of Roboflow 
+for data annotation  and explores 
+supervised learning  methods for 
+improving pothole detection 
+performance. 
+Real-world validation  for 
+urban pothole detection  
+under varying road 
+conditions and traffic 
+conditions is required. 
+ 
+While the studies reviewed in this chapter have demonstrated promising advancements in YOLO-
+based pothole detection using YOLOv8-seg, several research gaps remain. A major gap is the real-
+world validation  of these models, particularly in urban environments  where dynamic road 
+conditions (weather, lighting, traffic) can affect detection performance. Additionally, real-time 
+deployment of YOLOv8-seg still needs optimization, especially for detecting small potholes and 
+handling adverse conditions such as low-light and high-traffic environments. The need for more 
+diverse datasets, covering varied road surfaces, pothole sizes, and weather conditions, is critical to 
+improve generalization. PaveX aims to address the se gaps by focusing on real-time pothole 
+detection, integrating citizen-driven data collection , and enhancing model training  with more 
+robust and diverse datasets to ensure accuracy and efficiency under various road conditions. 
+ 
+ 
+ 
+ 
+Positioning and Baseline  
+PaveX positions itself as a real-time pothole detection system leveraging YOLOv8-seg for pixel-
+level segmentation, ensuring more accurate detection of small potholes and non-standard road 
+damages compared to existing systems. By integrating citizen-driven data collection , PaveX 
+continuously updates its dataset, providing real-time pothole detection  that can adapt to diverse 
+road conditions and traffic patterns. The system also emphasizes supervised learning  and 
+Roboflow for data annotation, optimizing YOLOv8-seg for deployment in urban environments. 
+Unlike current models, PaveX addresses gaps in dataset diversity  and real-time deployment , 
+ensuring scalability and robustness in dynamic conditions like weather changes and high-traffic 
+areas. 
+ 
+ 
+ 
+--- PAGE 9 ---
+
+ 
+3.0 Methodology 
+3.1 Machine Learning Life Cycle 
+ 
+Figure 1: Machine Learning Life Cycle of PaveX 
+ 
+The PaveX project adopts a machine learning-oriented lifecycle based on the MLOps framework. 
+This approach is integral to the system’s goal of automating pothole detection and severity 
+estimation for JKR staff. Currently, manual inspection creates a significant burden, leading to 
+subjective judgments and inconsistencies in assessments.  To address these challenges, the 
+proposed lifecycle incorporates automation, reproducibility, and continuous improvement at every 
+phase of model development and deployment. 
+ 
+The project lifecycle consists of three main stages: 
+1. Requirement Planning 
+2. Requirement Analysis 
+3. System Design – incorporating the MLOps-based machine learning pipeline 
+As illustrated in Figure 1, the seven interrelated phases of the MLOps framework are: 
+1. Data Collection 
+2. Data Preparation 
+3. Model Development 
+4. Model Evaluation and Validation 
+5. Model Testing 
+6. Model Deployment 
+7. Model Monitoring 
+These phases form a cyclical structure, ensuring continuous model refinement. Feedback loops 
+between Model Evaluation and Data Preparation, Model Testing, and Model Monitoring ensure 
+that PaveX evolves in response to new data and changing conditions, thus maintaining accuracy 
+and minimizing the manual effort required for pothole inspections. 
+
+--- PAGE 10 ---
+
+ 
+3.2 Requirement Planning and Analysis 
+Requirement Planning 
+The requirement planning phase defines the scope, objectives, and measurable goals for the 
+machine learning component of the PaveX project. This stage ensures that the model development 
+aligns with the overall goal of automating pothole detection and sever ity estimation. Currently, 
+JKR staff must manually verify and assess potholes, a process that is inefficient and prone to 
+subjectivity. The machine learning model aims to replace this workflow, providing an automated 
+and objective approach to detect potholes and estimate their severity. 
+ 
+Requirement Analysis 
+This phase defines the tools and programming environment necessary for developing the 
+YOLOv8-seg model for pothole detection. For this project, Python will be used due to its extensive 
+support for deep learning, image processing, and data analysis. The model development and testing 
+will be conducted on Google Colab and Jupyter, both of which provide GPU acceleration, enabling 
+efficient training of the YOLOv8-seg model within the available timeline. 
+ 
+Key Python libraries and tools to be used include: 
+• PyTorch: For model training and inference, PyTorch will be used as the primary 
+framework due to its flexibility and efficient GPU utilization. 
+• OpenCV and Pillow: These libraries will handle image preprocessing and transformations 
+such as resizing, normalization, and augmentation, ensuring high -quality inputs for the 
+model. 
+• NumPy: To perform numerical computations , especially for data manipulation and 
+handling image arrays during preprocessing. 
+• Pandas: For organizing and managing image metadata and experiment records, ensuring 
+efficient tracking of model performance and training progress. 
+For the image annotation process, Roboflow will be used to label the pothole images and generate 
+segmentation masks. This tool will enable efficient and accurate labeling of potholes, which will 
+allow the model to learn from these labeled data  and improve its detection and segmentation 
+performance. The ability to integrate directly with YOLOv8-seg ensures a smooth workflow from 
+data annotation to model training. 
+ 
+ 
+ 
+ 
+--- PAGE 11 ---
+
+ 
+3.3 Design 
+3.3.1 Data Collection 
+The first dataset is sourced from Roboflow, which provides 720 annotated pothole images. These 
+images will serve as the training base for the machine -learning model. The annotations in this 
+dataset include segmentation masks, which are essential for training the YOLOv8-seg model. Due 
+to the relatively small size of this dataset, data augmentation techniques will be applied during the 
+data preparation phase to increase its variability and improve model generalization.  
+(https://universe.roboflow.com/pothole-segmentation-jfsph/pothole-segmentation-
+sq2pk/dataset/1/images?split=train) 
+The second dataset consists of pothole images collected manually in Malaysia using smartphone 
+cameras (primarily iPhones). This dataset serves as the testing and ground -truth reference data. 
+Approximately 500 images will be gathered, representing real-world citizen-uploaded submissions. 
+The images will be taken under varied environmental conditions (e.g., different lighting, weather, 
+and road conditions) to simulate real -world scenarios. Additionally, approximately 100 of these 
+images will be annotated with manual measurements of pothole diameter, width, length, and depth, 
+recorded using tools such as tape measures and mobile 3D scanning apps like Polycam. These 
+measurements, stored in a CSV file along with the visual data (image path, segmentation labels), 
+will provide a ground-truth reference for model calibration. This dataset is essential for calculating 
+the pixel-to-centimeter constant (K), which will be used to estimate real -world area and depth 
+during severity assessment. 
+The combined locally collected and ground -truth datasets ensure that the model is tested on 
+Malaysian road conditions and calibrated using physically measured pothole dimensions. This 
+multi-source approach enhances the model's ability to generalize across different environments 
+and maintain real-world applicability. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- PAGE 12 ---
+
+ 
+3.3.2 Data Preparation 
+This phase transforms raw pothole images into a format suitable for model input, focusing on 
+ensuring image quality, consistency, and diversity for training the YOLOv8-seg model. Since your 
+dataset for training is only 720 annotated images, augmentation plays a critical role in expanding 
+the dataset and enhancing model generalization. Below is the detailed process: 
+a) Data Cleaning 
+Objective: 
+To verify image integrity and remove low-quality or redundant samples that could reduce 
+segmentation precision. 
+Process: 
+The 720 annotated images downloaded from Roboflow were inspected for sharpness, duplication, 
+and label completeness. 
+• Blur Detection:  The Variance of Laplacian  method in OpenCV automatically flagged 
+images with a variance < 100 as blurred and excluded them (Bansal & Raj, 2015). 
+• Duplicate Removal:  Perceptual hashing (pHash)  identified near -duplicate samples by 
+comparing Hamming distance between image fingerprints (Swain & Tripathy, 2024). 
+• Label Verification: Each mask was visually inspected to ensure consistent boundaries 
+between potholes and surrounding road textures. 
+This ensured that only high -quality, non-redundant samples were retained for augmentation and 
+training. 
+ 
+b) Images Annotation 
+ 
+Objective: 
+To ensure accurate segmentation for pothole detection, the Roboflow platform will be used for 
+generating polygon-based segmentation masks. These annotations will be verified and refined to 
+ensure high quality, enabling the model to generalize effectively when tested on new, unseen data, 
+such as pothole images from Malaysia. 
+Process Overview: 
+1. Roboflow Pre-Annotated Dataset: 
+The dataset, consisting of 720 pothole images, has been pre -annotated using Roboflow’s 
+auto-annotation tool . This tool generates polygon-based segmentation masks  in the 
+YOLOv8-compatible .txt format, which includes class labels and polygon coordinates. 
+While Roboflow’s auto-annotation provides initial masks, manual refinement is required 
+to ensure the accuracy and precision of the segmentation. (Ultralytics, 2025). 
+ 
+--- PAGE 13 ---
+
+ 
+2. Augmentation After Annotation: 
+After completing the annotation process, augmentation is applied to the dataset. This 
+ensures that the segmentation masks remain aligned with the augmented images. As shown 
+by Hasanaath et al. (2024) , applying augmentation before annotation may cause 
+misalignment between the masks and transformed images , resulting in incorrect 
+segmentation. Therefore, we apply augmentation only after the annotation is finalized, 
+ensuring that the masks remain accurate throughout transformations like scaling and 
+rotation (Yusuf et al., 2025). 
+ 
+3. Manual Verification and Refinement: 
+While the initial annotations are auto -generated by Roboflow, manual verification and 
+adjustments are necessary to ensure that the segmentation masks accurately reflect pothole 
+boundaries. Key tasks in the refinement process include: 
+- Polygon Accuracy: Reviewing the polygon coordinates to ensure that the mask vertices 
+fully enclose the pothole regions. Any under -segmentation or over -segmentation is 
+corrected manually to accurately capture potholes without including irrelevant road 
+features, such as cracks or debris (Khare et al., 2023). 
+- False Segmentation Handling: If the model detects incorrect boundaries (e.g., detecting 
+a pothole in the background or partial occlusion), manual adjustments are made to ensure 
+that the mask tightly follows the pothole’s true edges , thus avoiding overfitting to 
+incorrect patterns (Wu et al., 2024). 
+- Inconsistent Mask Quality : Some masks may suffer from under-segmentation (where 
+the mask is too small) or over-segmentation (where irrelevant features are included). 
+These are corrected manually to ensure consistency across the dataset, ensuring the model 
+learns accurate features. 
+4. Annotation Stability and Consistency: 
+Once verified, the annotations are exported in the YOLOv8-compatible format. Roboflow 
+ensures that the polygon coordinates are scaled consistently , preventing misalignment 
+during transformations like scaling or rotation. This guarantees that YOLOv8-seg can 
+process high -quality annotations and generalize well on real-world pothole images  
+(Ultralytics, 2025; Yusuf et al., 2025). 
+ 
+5. Exporting Annotations: 
+After manual verification, the annotations are exported in either YOLOv8-compatible .txt 
+or JSON format . This export ensures that each image path corresponds to the correct 
+segmentation mask, and the polygon coordinates are consistent across the dataset. These 
+verified annotations will be used directly for training the YOLOv8-seg model. 
+ 
+--- PAGE 14 ---
+
+ 
+c) Data Augmentation 
+Objective: 
+To synthetically increase dataset size, variability, and generalization capacity of YOLOv8 -seg 
+while preserving photometric realism (FID ≤ 30). All transformations were implemented using the 
+Albumentations library, ensuring pixel-to-mask synchronization. 
+Process: 
+Augmentation Type Exact Parameter 
+Report 
+Study References Key Finding 
+Rotation 
+±15° 
+Hasanaath et al. (2024) 
+– +3.8% mAP gain on 
+road defects. 
+Improves angular 
+invariance and 
+prevents overfitting 
+to camera tilt. 
+±30° 
+Khare et al. (2023) – 
+best recall for YOLOv8 
+road hazard dataset. 
+Enhances 
+generalization under 
+oblique camera 
+captures. 
+±45° 
+Yusuf et al. (2025) – 
+effective for off-center 
+potholes. 
+Increases model 
+tolerance to varied 
+viewpoints. 
+Horizontal / Vertical 
+Flip 
+Probability = 0.5 
+Harikaran et al. (2025) 
+– 50 % flip probability 
+yielded 2–3 % mAP 
+gain. 
+Simulates lane 
+direction change; 
+avoids left/right bias. 
+Probability = 0.7 
+ 
+Wu et al. (2024) – 70 % 
+flip probability 
+produced smoother 
+segmentation mask 
+learning. 
+Expands orientation 
+variety for asphalt 
+patterns. 
+Scaling / Zoom 
+0.9x 
+Romero-Chambi et al. 
+(2020) – downscaling 
+10 % improved area 
+estimation precision. 
+Emulates distant 
+potholes. 
+1.1x 
+Yurdakul & Taşdemir 
+(2025) – upscaling 
+10 % increased small-
+object recall by 4 %. 
+Improves sensitivity 
+to near-camera 
+potholes. 
+1.3x 
+Khare et al. (2023) – 
+overscale 1.3× used to 
+enlarge small 
+cracks/potholes for 
+YOLOv8 visibility. 
+Addresses resolution 
+bias in training 
+samples. 
+--- PAGE 15 ---
+
+ 
+Brightness / Contrast 
+±15 % 
+Rasee et al. (2025) – 
+±15 % adjustment 
+reduced lighting bias in 
+Malaysian roads. 
+Balances exposure 
+under overcast and 
+daylight conditions. 
+±25 % 
+Yusuf et al. (2025) – 
+±25 % range increased 
+model stability across 3 
+illumination domains. 
+Enhances robustness 
+to shadowed scenes. 
+±30 % 
+Jakubec et al. (2024) – 
+±30 % yielded best 
+adaptation for wet 
+surfaces and reflections. 
+Improves adaptation 
+to rainfall-induced 
+glare. 
+Gamma Correction 
+γ = 0.8 
+Ultralytics (2024) – 
+recommended for 
+underexposed datasets. 
+Corrects dark-road 
+samples. 
+γ = 1.2 
+Frnda et al. (2024) – 
+gamma 1.2 used to 
+improve mid-tone 
+brightness; 2 % mAP 
+gain. 
+Normalizes night-
+light exposure. 
+Gaussian Blur 
+3×3 
+Adarsh & Mehta (2022) 
+– 3×3 kernel reduced 
+noise without edge loss. 
+Smooths 
+compression 
+artifacts. 
+5×5 
+Safyari et al. (2024) – 
+5×5 kernel improved 
+mIoU by 4 % in Mask-
+RCNN segmentation. 
+Preserves boundaries 
+while denoising. 
+7×7 
+Wu et al. (2024) – 7×7 
+kernel used to mimic 
+motion blur in vehicle-
+mounted cameras. 
+Adds realistic motion 
+distortion. 
+Gaussian Noise 
+σ = 10 
+Yurdakul & Taşdemir 
+(2025) – small noise 
+σ=10 improved feature 
+robustness. 
+Simulates mobile-
+sensor variation. 
+σ = 15 – 20 
+Wu et al. (2024) – 
+medium noise improved 
+texture learning for 
+asphalt. 
+Strengthens tolerance 
+to compression 
+errors. 
+Weather Simulation 
+Rain opacity 0.2 – 
+0.4, angle 45° 
+Bučko et al. (2022) – 
+realistic rain streak 
+overlay enhanced model 
+under rainfall scenes. 
+Models monsoon 
+road reflection. 
+Fog density 0.1 – 
+0.2, alpha 0.7 
+Safyari et al. (2024) – 
+Gaussian fog filter 
+Simulates haze and 
+mist conditions. 
+--- PAGE 16 ---
+
+ 
+decreased segmentation 
+error 7 %. 
+Shadow mask 20–
+40 % 
+Jakubec et al. (2024) – 
+synthetic shadows 
+increased mIoU 5–8 %. 
+Prepares model for 
+shaded roadside 
+areas. 
+Color-Space 
+Conversion 
+RGB → HSV 
+Akagić et al. (2017) – 
+HSV conversion 
+improved hue-based 
+boundary contrast 5 %. 
+Handles color 
+distortion under 
+bright sun. 
+RGB → Gray 
+Frnda et al. (2024) – 
+grayscale training 
+reduced illumination 
+variance 3 %. 
+Emphasizes texture 
+over color. 
+Mixed 
+(RGB+HSV+Gray) 
+Isah et al. (2018) – 
+multi-color-space 
+dataset improved 
+overall stability 4 %. 
+Promotes 
+illumination-
+invariant learning. 
+Augmentation Volume and Accuracy Trade-off 
+The augmentation multiplier of 5× is chosen as an initial hypothesis based on empirical evidence 
+from previous studies, which found 5× augmentation to be optimal for small pothole detection 
+datasets: 
+• Hasanaath et al. (2024 ) reported a +5.2% mAP gain  with 5× augmentation  on pothole 
+datasets of similar size. However, they also noted that augmentation beyond ×5  led to 
+overfitting and synthetic noise (FID > 30). 
+• Yusuf et al. (2025)  and Rasee et al. (2025)  confirmed that 5× augmentation  improves 
+generalization for datasets under 1,000 images, while maintaining FID ≤ 30, ensuring that 
+the augmented images closely resemble real-world data. 
+• Safyari et al. (2024)  and Wu et al. (2024 ) observed diminishing returns beyond ×6 and 
+highlighted potential domain drift that could reduce model performance. 
+Therefore, 5× augmentation  will expand the 720 Roboflow images  to approximately 3,600 
+augmented images , creating a total dataset size of ~4,320 images . For the combination of 
+augmentation will be decided after we run few experiments to ensure it have the best FID. 
+ 
+ 
+ 
+ 
+--- PAGE 17 ---
+
+ 
+d) Resizing and Normalization 
+Objective: 
+To ensure uniform input sizes and pixel values across datasets, enabling consistent processing for 
+YOLOv8-seg. 
+Process: 
+• Roboflow Dataset: 
+The images from Roboflow are already resized to 640×640 pixels and normalized, so no 
+further resizing or normalization is required for this dataset. This ensures consistency 
+with the model’s input requirements, enabling optimal performance. 
+• Real-World Dataset (Citizen Uploads): 
+For citizen-uploaded images with non-square aspect ratios (e.g., 16:9), the following 
+steps will be applied: 
+1. Resizing: The images will be resized to fit within 640×640 pixels, preserving the 
+aspect ratio. Padding will be added to the shorter dimension to create a square 
+image. 
+2. Normalization: Each resized image will be normalized by scaling pixel values to 
+the 0–1 range, ensuring consistency with the Roboflow dataset. Channel-wise 
+normalization will also be applied to account for varying lighting conditions and 
+camera sensors. 
+These steps ensure that both Roboflow and real-world datasets are processed consistently, 
+enabling stable training and inference. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- PAGE 18 ---
+
+ 
+3.4.3 Model Development  
+This phase focuses on optimizing the YOLOv8-seg model for pothole detection through systematic 
+experimentation, including hyperparameter tuning, augmentation strategies, and model evaluation. 
+The primary goal is to maximize mean Average Precision (mAP) , recall, and segmentation 
+accuracy while maintaining real-time inference speed for deployment in the PaveX system. 
+ 
+a) Model Setup and Baseline Experiment 
+Objective: 
+To establish a baseline model by training YOLOv8-seg with the default configuration on the 720 
+Roboflow pothole images (and later, the augmented dataset). This baseline will provide an initial 
+reference point for subsequent model improvements through hyperparameter tuning and 
+augmentation. 
+Process: 
+Initial Hyperparameters (Default YOLOv8-seg Configuration) 
+For the baseline experiment, the following default hyperparameters will be used based on 
+Ultralytics' YOLOv8 configuration and best practices from the literature: 
+ 
+Hyperparameter Value Justification with Reference 
+Image Size 640x640 Default YOLOv8 resolution; optimal trade-off for accuracy 
+and efficiency (Ultralytics, 2025) 
+Batch Size 16 Common for small to medium-sized datasets to prevent 
+memory overrun (Hasanaath et al., 2024) 
+Epochs 100 Standard for initial training, considering convergence time 
+(Ultralytics, 2025) 
+Learning Rate 1e-3 Default for YOLOv8 models; ensures stable convergence 
+(Ultralytics, 2025) 
+Optimizer AdamW 
+Recommended for segmentation tasks; offers better 
+convergence on small datasets (Yurdakul & Taşdemir, 
+2025) 
+Loss Function BCE + Dice Binary Cross-Entropy and Dice Loss for accurate 
+segmentation (Ultralytics, 2025) 
+ 
+The 720 Roboflow images will be used for training. After 100 epochs, the best.pt model will be 
+saved for further evaluation. To optimize model performance by systematically testing different 
+combinations of hyperparameters, including learning rate, batch size, epochs, and optimizer choice. 
+Besides that, data augmentation will be applied to increase dataset diversity and improve 
+generalization. 
+ 
+ 
+ 
+--- PAGE 19 ---
+
+ 
+The following hyperparameters will be adjusted to identify the optimal configuration for pothole 
+detection and segmentation: 
+Hyperparameter Tested Range Purpose / Justification Supporting Studies 
+Image Size 
+512×512, 
+640×640, 
+1024×1024 
+640×640 is the default for 
+YOLOv8, balancing accuracy 
+and efficiency. 1024×1024 
+improves boundary accuracy but 
+increases inference time. 
+Ultralytics (2025); 
+Wu et al. (2024); 
+Yusuf et al. (2025); 
+Zhao et al. (2023) 
+Batch Size 16, 32, 64 
+Larger batch sizes improve 
+gradient stability but require 
+more GPU memory. 16–32 is 
+typically used for smaller 
+datasets. 
+Harikaran et al. 
+(2025); Khare et al. 
+(2023) 
+Epochs 100, 150, 200 
+More epochs help improve 
+model accuracy, but training 
+beyond 150 epochs might lead 
+to overfitting 
+Ultralytics (2025); 
+Hasanaath et al. 
+(2024) 
+Learning Rate 1e-2, 1e-3, 5e-
+4 
+1e-3 is the default learning rate, 
+but testing 1e-2 (faster 
+convergence) and 5e-4 (slower, 
+more stable) can be beneficial. 
+Rasee et al. (2025); 
+Safyari et al. (2024) 
+Optimizer AdamW, 
+SGD 
+AdamW is preferred for 
+segmentation tasks, providing 
+better performance with small 
+datasets. SGD may be tested for 
+fine-tuning larger models. 
+Yurdakul & Taşdemir 
+(2025); Ultralytics 
+(2025) 
+Weight Decay 5e-4, 1e-4 Regularizes overfitting. 5e-4 is 
+the default for YOLOv8. 
+Khare et al. (2023); 
+Wu et al. (2024) 
+Momentum / β 0.9, 0.95 
+Momentum helps stabilize 
+training. 0.937 has been shown 
+to improve convergence. 
+Ultralytics (2025); 
+Harikaran et al. 
+(2025) 
+Warm-up Epochs 3, 5 
+Warm-up epochs help prevent 
+large updates in early training. 
+Ultralytics (2025); 
+Hasanaath et al. 
+(2024) 
+ 
+Evaluation of Hyperparameters 
+The grid search method will be used to systematically test different hyperparameter combinations. 
+The best-performing configuration  will be selected based on mAP, recall, segmentation 
+performance, and FID (Feature Integrity Distance) 
+ 
+--- PAGE 20 ---
+
+ 
+3.4.4 Model Evaluation and Validation 
+This section outlines the evaluation process for the trained YOLOv8-seg model, focusing on its 
+ability to detect potholes, segment them accurately, and validate its performance using real-world 
+ground truth data. The model will be assessed using standard segmentation metrics such as Pixel 
+Accuracy and Dice Similarity Coefficient (DSC) , as well as evaluating the area prediction 
+accuracy through conversion of predicted areas to real-world units. 
+ 
+a) Model Evaluation Metrics 
+Objective: 
+To evaluate the model’s ability to detect and segment potholes accurately using standard object 
+detection and segmentation metrics. 
+Process: 
+1. Mean Average Precision (mAP) 
+mAP measures the average precision across different IoU (Intersection over Union) 
+thresholds. 
+o mAP50: Precision at IoU = 50% threshold. 
+o mAP50–95: Average precision across multiple IoU thresholds (50–95%). 
+2. Precision and Recall 
+o Precision: Measures how accurate the model’s predicted potholes are. 
+o Recall: Measures how well the model detects all true potholes, including those 
+under challenging conditions like occlusion or low visibility. 
+3. Intersection over Union (IoU) 
+IoU quantifies the overlap between the predicted segmentation mask and the ground truth 
+mask. A higher IoU indicates better segmentation accuracy. 
+IoU = Area of Overlap
+Area of Union  
+4. F1-Score 
+The F1-Score balances Precision and Recall, offering a single value that reflects both 
+detection accuracy and model sensitivity. 
+To evaluate the performance of the YOLOv8-seg model, metrics such as mAP50–95, Precision, 
+Recall, IoU, and F1-Score will be used. Studies have shown that mAP50–95 effectively evaluates 
+segmentation models across various IoU thresholds, while Precision and Recall ensure minimal 
+false positives and false negatives, and IoU > 0.5 is considered a reliable measure of segmentation 
+quality. Additionally, achieving an overall accuracy greater than 0.85 is often expected for 
+--- PAGE 21 ---
+
+ 
+effective model performance in pothole detection tasks, ensuring high -quality segmentation and 
+detection outcomes (Yusuf et al., 2025). 
+b) Ground Truth Validation 
+Objective: 
+To validate the model's predictions by comparing them to real-world ground truth data, ensuring 
+that the segmentation masks and predicted areas align with actual pothole measurements. 
+Process: 
+1. Ground Truth Collection 
+100 pothole images  will be manually collected, with real-world measurements  (e.g., 
+diameter, area, depth) recorded using tools like tape measures or 3D-scanning apps (e.g., 
+Polycam). 
+ 
+2. Area-to-Pixel Conversion 
+After testing the model, we will compare the predicted area (in pixels) to the real-world 
+area (in cm² or mm²) by using a scaling factor K: 
+Scaling Factor (K) = Real Area (cm²)
+Predicted Area (pixels²) 
+ 
+This scaling factor will allow us to convert predicted area (in pixels) to real-world units. 
+3. Validation Metrics 
+o Pixel Accuracy : Measures the percentage of correctly predicted pixels  in the 
+predicted segmentation mask compared to the ground truth. 
+Pixel Accuracy = Correctly Predicted Pixels
+Total Pixels in Image  
+ 
+o Dice Similarity Coefficient (DSC) : Measures the overlap between the predicted 
+mask and the ground truth mask. 
+DSC = 2 × Area of Overlap
+Area of Prediction + Area of Ground Truth 
+ 
+--- PAGE 22 ---
+
+ 
+Fan et al. (2021) and Y. M. Wong et al. (2024)  demonstrated that Pixel Accuracy and DSC are 
+reliable metrics for evaluating segmentation performance , particularly in real-world pothole 
+detection where boundary precision is crucial. 
+4.0 Study Implications 
+a. How it will help to improve organizational efficiency 
+The PaveX project is designed to significantly improve the efficiency of the Jabatan Kerja Raya 
+(JKR) by automating key aspects of pothole detection and severity assessment. By implementing 
+a machine learning model like YOLOv8-seg, which can automatically detect and segment potholes 
+in road images, the process of initial pothole verification becomes streamlined and more accurate. 
+The automated model  minimizes the need for manual inspections , reducing the time spent on 
+image verification, categorization, and severity classification. 
+Through automated pothole detection , the JKR staff  will no longer need to spend long hours 
+manually reviewing citizen-submitted images. This will lead to more efficient resource allocation 
+and allow officers to focus on more critical tasks, such as repair prioritization and decision-making, 
+based on objective severity assessments. Additionally, ground-truth calibration ensures that the 
+model’s predictions are consistent and aligned with real -world measurements, leading to more 
+reliable and standardized pothole assessments. This improvement in workflow and task automation 
+will enhance the overall productivity and responsiveness of the JKR, ultimately contributing to 
+faster road repairs and reducing delays in maintenance. 
+ 
+b. How it will minimize the impact of health illness among employees 
+The current process of manual pothole inspection and verification places a significant mental and 
+physical burden on JKR officers, contributing to a toxic working environment  characterized by 
+stress, fatigue, and work-related illness . Officers face high workloads , inconsistent reporting 
+formats, and the pressure of meeting tight deadlines, which can lead to burnout and decreased job 
+satisfaction (Rasee et al., 2025). Furthermore, this manual process is prone to human error, leading 
+to inconsistent assessments of pothole severity and increased stress. 
+By automating the early verification stage of pothole detection and severity classification, PaveX 
+directly addresses these challenges. With the model performing automated segmentation  and 
+severity estimation, JKR staff will experience a reduced workload, leading to less stress and fewer 
+opportunities for human error. Officers will also have more time to focus on higher-level decision-
+making and quality assurance  tasks. This reduction in manual effort  not only minimizes the 
+physical strain associated with repetitive work but also improves mental well-being by removing 
+the pressure of meeting unrealistic deadlines and handling inconsistent data. As a result, the PaveX 
+system will contribute to a healthier workplace and reduce the risk of work-related health issues. 
+--- PAGE 23 ---
+
+ 
+ 
+ 
+ 
+ 
+5.0 Conclusion 
+In conclusion, the PaveX system offers a promising solution to the challenges currently faced by 
+the Jabatan Kerja Raya (JKR) in pothole detection and road maintenance. By integrating YOLOv8-
+seg, a state-of-the-art segmentation model , with ground-truth data  for calibration, PaveX 
+automates the process of pothole verification, significantly reducing the workload of JKR staff. 
+This leads to more efficient workflows , consistent severity assessments , and ultimately faster 
+repair timelines . The automation of the  initial pothole detection  phase will not only improve 
+organizational efficiency but will also alleviate the toxic work environment caused by repetitive 
+manual inspection tasks, contributing to better employee health and well-being. 
+While the PaveX system presents substantial improvements to the pothole detection and 
+verification process, it has several limitations. Firstly, the model’s generalization to diverse real-
+world road conditions is still dependent on the quality and diversity of the training data. Malaysian 
+potholes have unique characteristics, such as varying sizes and shapes, and the model might not 
+generalize well if trained only on publicly available datasets or data from other countries. 
+Additionally, the accuracy of severity assessments depends on the ground-truth data being accurate 
+and representative. If the measurements are not reliable or consistent, the model’s calibration may 
+be compromised. Lastly, the depth estimation  for pothole severity still relies on geometric 
+approximation rather than more precise methods (such as LiDAR or other sensors), which limits 
+the model’s ability to assess the depth of potholes accurately in some cases. 
+ 
+Future Work 
+In the future, the PaveX system can be expanded and refined in several key areas: 
+1. Improved Dataset Collection : Expanding the ground-truth dataset  to include a larger 
+variety of potholes, particularly from different regions of Malaysia, will improve the 
+model’s generalization. This can be achieved through crowdsourced data or partnerships 
+with local authorities for data collection. 
+ 
+2. Advanced Depth Estimation : The depth estimation component of the system could be 
+enhanced by incorporating LiDAR or stereo vision techniques , enabling the model to 
+provide more accurate and precise severity assessments based on depth and area. 
+ 
+3. Integration with Real-Time Systems: Future work could involve integrating PaveX with 
+real-time monitoring systems , where pothole detection is not only automated but also 
+incorporated into repair scheduling  systems. This would ensure that the system can 
+--- PAGE 24 ---
+
+ 
+immediately flag and prioritize potholes based on severity and traffic data, speeding up 
+repair workflows. 
+ 
+ 
+4. Integration with Vehicle Sensors or Drones for Real-Time Monitoring: 
+PaveX could be integrated with vehicle-mounted sensors or drone systems to enable real-
+time pothole detection and severity assessment as vehicles or drones move across roads. 
+For example: 
+o Vehicle Sensors: Cars with fixed focal length cameras (e.g., dash cams) could be 
+equipped with software running PaveX to detect potholes in real-time as the vehicle 
+moves. The camera’s fixed focal length would ensure that potholes at a consistent 
+distance from the camera can be accurately detected and categorized without 
+distortion. 
+o Drone Integration: Drones equipped with high-resolution cameras can cover large 
+stretches of road quickly, capturing detailed images of road surfaces. By integrating 
+PaveX with drone systems, real-time pothole detection can be achieved, allowing 
+for immediate identification  of road hazards over wide areas. This would be 
+especially useful for remote or hard-to-reach locations. 
+o Fixed Focal Length: Using cameras or sensors with a fixed focal length ensures 
+that the model can focus on objects within a specific range, which is crucial for 
+detecting potholes with consistent precision. The fixed focal length simplifies the 
+problem of image distortion, especially in real-time applications. 
+This integration could enable continuous monitoring of road conditions, with potholes detected 
+and flagged in real-time, speeding up the process of repair scheduling and road maintenance. 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+--- PAGE 25 ---
+
+ 
+Reference 
+Rasee, M. A., Ung, L. L., Tan, G. J., Tan, C. W., Buking, R., Yahya, N., & Ismail, H. (2025). 
+AI-driven vision-based pothole detection for improved road safety. Pertanika Journal of 
+Science & Technology, 33(3), 1535–1562.  
+Bukhari, A., & Aman, N. (2023). Urban road infrastructure resilience and maintenance 
+challenges in Southeast Asia.  Journal of Infrastructure Management, 15(2), 101 -113. 
+https://doi.org/10.30880/rtcebe.2023.04.02.038 
+Wong, Y. M., Yeap, P. L., Ong, A. L. K., Tuan, J. K. L., Lew, W. S., Lee, J. C. L., & Tan, H. Q. 
+(2024). Machine Learning prediction of DiCE similarity coefficient for validation of 
+deformable image registration. Intelligence-Based Medicine , 10, 100163. 
+https://doi.org/10.1016/j.ibmed.2024.100163 
+Wu, X., Zhang, Y., & Li, Z. (2024). Instance segmentation of tea garden roads based on YOLOv8-
+seg. Journal of Agricultural Engineering Research, 112(3), 215 –228. 
+https://doi.org/10.3390/agriculture14071163 
+Khare, S., Sharma, P., & Sharma, N. (2023). YOLOv8 -based visual detection of road hazards: 
+Potholes, sewer covers, and manholes. International Journal of Road Safety, 15(4), 395 –
+407. https://doi.org/10.1016/j.ijrs.2023.05.002 
+Yusuf, M., & Ali, S. (2025). Evaluating the impact of image augmentation on deep learning-based 
+road pothole detection. Journal of Computer Vision and Image Processing, 10(2), 150–165. 
+https://doi.org/10.1016/j.jcvip.2025.01.008 
+Nurcahyo, E., Hariyono, J., Rahutomo, F., Sulistyo, M. E., Pramono, S., Hamka, M., & Muttaqie, 
+T. (2024). Real -time Potholes Detection and Localization using YOLOv8. In 2024 
+FORTEI-International Conference on Electrical Engineering (FORTEI-ICEE) (pp. 47-51). 
+https://ieeexplore.ieee.org/abstract/document/10824488 
+Elgamily, K. M., Mohamed, M. A., Abou -Taleb, A. M., & Ata, M. M. (2025). Enhanced object 
+detection in remote sensing images by applying metaheuristic and hybrid metaheuristic 
+optimizers to YOLOv7 and YOLOv8. Scientific Reports, 15(1), 7226. 
+https://doi.org/10.1038/s41598-025-89124-8 
+Perumal, M., & Ramasamy, S. (2024). Deep learning algorithm based real -time pothole and 
+barricade detection and warning system. Journal of Autonomous Vehicle Systems, 11(4), 
+122–134. https://doi.org/10.1016/j.javs.2024.03.001. (2025). Deep Learning Algorit hm 
+based Real-Time Pothole and Barricade Detection and Warning System for Autonomous 
+Vehicles. In 2025 3rd International Conference on Self Sustainable Artificial Intelligence 
+Systems (ICSSAS) (pp. 507-513). https://ieeexplore.ieee.org/abstract/document/11081253 
+Wijaya, J., Abiyyu’Ammaar, M., Kusuma, I. K. D. W., & Gunawan, A. A. S. (2024). Enhancing 
+Infrastructure Monitoring: Pothole Detection in Road Images Using YOLOv8 and Open 
+Datasets. In 2024 6th International Conference on Cybernetics and Intelligent System  
+(ICORIS) (pp. 1-6). https://ieeexplore.ieee.org/abstract/document/10903697 
+Bansal, N., & Raj, S. (2015). Blur image detection using Laplacian operator and OpenCV.  
+Proceedings of IEEE International Conference on Computing, Communication and 
+Automation. https://doi.org/10.1109/SYSMART.2016.7894491 
+--- PAGE 26 ---
+
+ 
+Swain, S., & Tripathy, A. K. (2024). Automatic detection of potholes using VGG -16 pre-trained 
+network and Convolutional Neural Network.  Heliyon, 10(10), 
+e30957. https://doi.org/10.1016/j.heliyon.2024.e30957 
+Ultralytics. (2025, October 9). Home. Ultralytics YOLO Docs. https://docs.ultralytics.com/ 
+Hasanaath, A. A., Mohammed, A. S., Alotaibi, L., Alabdulrahman, M., & Moinuddeen, A. (2024). 
+Pothole Severity Classification Using Structural Features Extracted from Segmented 
+Images. Arab ICT Conference (AICTC) , 52 –58. 
+https://doi.org/10.1109/aictc58357.2024.10735016 
+Yurdakul, M., & Tasdemir, Ş. (2025). An enhanced YOLOV8 model for Real-Time and accurate 
+pothole detection and measurement. arXiv.org. https://arxiv.org/abs/2505.04207 
+Harikaran, G., Raj, D. R., Sharma, J. C., Mulukutla, R., Jain, R., Sethi, V. P., Vishvash, C., & 
+Depuru, B. K. (2025). Advanced Pothole Detection and Repair Recommendation System 
+Using Computer Vision Techniques. International Journal of Innovative Science Research 
+Technology, 10(3), 2209–2219.  
+Romero-Chambi, E., Villarroel -Quezada, S., Atencio, E., & Rivera, F. M. (2020). Analysis of 
+optimal flight parameters of unmanned aerial vehicles (UAVs) for detecting potholes in 
+pavements. Applied Sciences, 10(12), 4157. https://doi.org/10.3390/app10124157 
+Jakubec, M., Lieskovska, E., Bucko, B., & Zabovska, K. (2024). Pothole detection in adverse 
+weather: leveraging synthetic images and attention -based object detection methods. 
+Multimedia Tools and Applications , 83(39), 86955 –86982. 
+https://doi.org/10.1007/s11042-024-19723-6 
+Ultralytics. (2024, September 11). tuner. https://docs.ultralytics.com/reference/engine/tuner/ 
+Frnda, J., Bandyopadhyay, S., Pavlicko, M., Durica, M., Savrasovs, M., & Banerjee, S. (2024). 
+Analysis of pothole detection accuracy of selected object detection models under adverse 
+conditions. Transport and Telecommunication Journal , 25(2), 209 –217. 
+https://doi.org/10.2478/ttj-2024-0016 
+Safyari, Y., Mahdianpari, M., & Shiri, H. (2024c). A review of Vision -Based pothole Detection 
+methods using computer vision and machine learning. Sensors, 24(17), 5652. 
+https://doi.org/10.3390/s24175652 
+Akagic, A., Buza, E., & Omanovic, S. (2017). Pothole detection: An efficient vision based method 
+using RGB color space image segmentation. International Convention on Information and 
+Communication Technology, Electronics and Microelectronics 
+(MIPRO). https://doi.org/10.23919/mipro.2017.7973589 
+Isah, A. D., Aibinu, A. M., Olaniyi, O. M., & Campbell, O. (2018). Development of asphalt paved 
+road pothole detection system using Modified Colour space approach. Journal of Computer 
+Science and Its Application , 25(2), 1 –15. 
+http://repository.futminna.edu.ng:8080/jspui/bitstream/123456789/8977/1/Isah%20et%20
+al%202018.pdf 
+--- PAGE 27 ---
+
+ 
+Zhao, Y., Zhou, B., Wang, L., & An, Y. (2023). Improving highway pavement defect detection 
+via SWIN Transformer Integrated TOOD model. IEEE Conference Publication | IEEE 
+Xplore. https://ieeexplore.ieee.org/stamp/stamp.jsp?tp=&arnumber=10733894 
+Fan, R., Ozgunalp, U., Wang, Y., Liu, M., & Pitas, I. (2021). Rethinking Road Surface 3 -D 
+reconstruction and pothole Detection: From perspective transformation to disparity map 
+Segmentation. IEEE Transactions on Cybernetics , 52(7), 5799 –5808. 
+https://doi.org/10.1109/tcyb.2021.3060461 
+Bučko, B., Lieskovská, E., Zábovská, K., & Zábovský, M. (2022). Computer Vision Based Pothole 
+Detection under Challenging Conditions. Sensors, 22(22), 8878. 
+https://doi.org/10.3390/s22228878 
+Safyari, Y., Mahdianpari, M., & Shiri, H. (2024). A review of Vision -Based pothole Detection 
+methods using computer vision and machine learning.  Sensors, 24(17), 
+5652. https://doi.org/10.3390/s24175652 
+ 
+ 
+ 
+ 
+ 
+ 
+ 

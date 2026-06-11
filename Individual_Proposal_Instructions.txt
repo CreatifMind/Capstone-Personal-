@@ -1,0 +1,247 @@
+
+
+
+SUNWAY UNIVERSITY SCHOOL 
+
+BACHELOR OF BUSINESS ANALYTICS (HONOURS)
+
+ACADEMIC SESSION:  APRIL 2026
+
+SIS 3044: SUSTAINABLE INFORMATION SYSTEM
+ASSIGNMENT 1                                                      DUE DATE: 31st MAY 2026
+
+-114300-1270
+0
+INSTRUCTIONS TO CANDIDATES
+
+There are three (3) pages in this assignment, including the cover page.
+This assignment will contribute 20% to your final grade.
+The assignment must be submitted in pdf or ppt format. Work should be presented in a folder with a cover sheet, including your name, unit number, tutor's name, and the essay/group report topic.
+Marks will be allocated for content, presentation, and references.
+080645
+
+
+IMPORTANT
+
+Extensions and Late Submissions
+
+The University requires students to adhere to submission deadlines for any form of assessment. Penalties applied in relation to unauthorized late submission of work are as follows:
+
+Coursework submitted within one week after the deadline will be accepted for a maximum mark of 40%.
+
+Any coursework handed in after seven days, without an agreed extension, will be regarded as non-submission and awarded zero.
+
+Submission of resit coursework must adhere strictly to the deadline.
+No extension will be given and late submissions will be awarded zero.
+
+Subject lecturers are authorized to grant extensions for coursework within their own subjects and agreements will be documented.
+
+0
+
+IMPORTANT
+
+Extensions and Late Submissions
+
+The University requires students to adhere to submission deadlines for any form of assessment. Penalties applied in relation to unauthorized late submission of work are as follows:
+
+Coursework submitted within one week after the deadline will be accepted for a maximum mark of 40%.
+
+Any coursework handed in after seven days, without an agreed extension, will be regarded as non-submission and awarded zero.
+
+Submission of resit coursework must adhere strictly to the deadline.
+No extension will be given and late submissions will be awarded zero.
+
+Subject lecturers are authorized to grant extensions for coursework within their own subjects and agreements will be documented.
+
+
+
+
+
+
+
+
+ASSIGNMENT 1 
+
+Introduction
+Inefficient processes and poorly coordinated handoffs across departments often overload employees. In supply-chain style workflows, these frictions amplify tension between teams and create a toxic environment that harms mental health—an essential “S” priority within ESG. AI and Digital Transformation can streamline cross-functional operations, reduce avoidable workload, and identify early signs of burnout, leading to a healthier, more sustainable organization. 
+When upstream delays or unclear ownership ripple through the internal supply chain of work, employees absorb the impact via rework, after-hours effort, and conflict. Over time this drives stress, disengagement, and attrition. An AI-enabled operating model can make the flow of work transparent, automate routine tasks, proactively balance capacity, and surface well-being risks—protecting both performance and people.
+
+Business Scenario
+After covid-19, many SME’s purchased ERP system (Streamline or Silo’s platform) with the objective of “jobs can be done anywhere and anytime.  But many lacks of the entry and back end integration point which leads to manual tasks that need to be picked by a group of data entry users as part of the material information handler to transform from System A to System B.  Majority of support group organization are performing their job manually which transfer the data from manual forms into an ERP system.  For example:
+
+a.  HR employee has to input data from On-boarding Form into HRMS system and retrieve the data into excel for Data visualization to update the management of the relevance KPI
+
+b. Employee performance Appraisal usually is done in the HRMS system, but when it comes to data distribution by department, the process is still manual which it downloaded into excel, plot the distribution analysis department by department meeting after meeting to finalize its recommendation insight
+
+c. A warehouse system and a finance system usually an independent ERP management system that tracked importance KPI from both product capacity and financial performance. It starts from managing the stock movement and stock level in production warehouse and such information will pass back to procurement department to initiate the purchasing process.  Procurement executive will have to manage hundred’s supplier quotations to be entered into Purchase Request Entry. Not only that, the unstructured supplier quotation format that need to be sorted out manually before the Purchase Request need to initiated. 
+
+d. Customer Order which usually send via email that need to be picked up by the Sales executive for Sales Order Entry in the ERP system.  He or She needs to manually track number of orders from customers in CRM system before transfer it into Sales Order in Finance ERP system before move into manufacturing team environment for planning and executions. There will be another team of project secretaries by different projects to manually sort, monitor and track the end-to-end from book orders, confirmed order, delivery order and issue the sales invoices to client to ensure Cash-in flow is healthy. 
+
+e. Service Project Management is another big head-ache for a SME to improve the work-life balance of an employee.  Whenever, a contract management issued between client and the organization, the chaos environment of project Admin begins.  He or She needs to log into the book order, assign the Work order into Project Manager to kick start and manage the project. When the services started, daily or weekly services reporting update needs to be keyed-in manually into the Service Management Report to ensure timely-update. The project manager will monitor the services work in terms of resources; human and asset capital whether it will meet the delivery timeline as per the contract.  
+
+Thus, in every domain of organization, there is chaos occurred if the process streamline is half-cooked.  There is always “group of users or data entry users” that have to bear the pain of the repetitive process, not effective digital process and non-structured documents that needs to be produced timely. With the rise of AI functionality, explore the solution analytics to resolve above scenario.  You can propose the generic solutions or based on specific domain.
+
+The objectives are: 
+Reduce avoidable workload and rework across the internal supply chain.
+Improve inter-departmental services and handoff quality.
+Monitor and mitigate burnout risk in a privacy-preserving way (ESG “S”).
+
+The solution analytics should cover (Combination of two solutions):
+
+a.  Automated User Interface Data Entry
+b.  Integration from multiple User Interface format into database
+c. Machine Learning and Deep Learning model integration with the database system
+d. RPA development to replace repetitive tasks
+e. Visualization Interface for different domain user (Admin / Manager / Process users)
+f. The system should be a web-based system
+
+The solution Analytics Proposal Report should be layout as below:
+
+
+Assessment 1: Proposal – AI-Driven Solution for Operational Bottleneck
+(Students need to define the actual project title)
+Students must propose a web-based AI system integrating:
+Machine Learning (ML) or Deep Learning (DL) or LLM-RAG 
+Dashboard Visualization (BI) 
+Process Automation / Decision Support 
+Target: Solve a real-world manual bottleneck (e.g., HR, finance, healthcare, logistics, ERP processes).
+Section
+Sub-Component
+Description
+Marks
+1. Introduction
+Background & Domain Context
+Clear explanation of selected domain and relevance
+3
+
+Problem Statement
+identification of manual bottleneck
+4
+
+Objective & Scope
+Alignment with web system + ML/DL/RAG + dashboard
+3
+
+Subtotal
+
+10
+
+
+
+
+2. Related Work
+Literature Review
+Discussion of 3–5 relevant studies/systems
+5
+
+Comparative Analysis
+Comparison between existing vs proposed solution
+5
+
+Gap Identification
+Clear research/industry gap justification
+5
+
+Subtotal
+
+15
+
+
+
+
+3. Methodology
+Project Lifecycle Framework
+Selection, diagram, and justification (e.g., CRISP-DM, MLOps)
+10
+
+System Architecture Design
+End-to-end architecture diagram & explanation
+10
+
+Web-Based System Component
+UI/UX, features, and tools (frontend/backend)
+5
+
+Machine Learning Component
+Data, preprocessing, model selection, evaluation metrics
+10
+
+Dashboard Visualization (BI)
+KPI, trend, and analytical dashboard design
+5
+
+Integration Strategy
+Flow between web + ML + dashboard (pipeline clarity)
+5
+
+Subtotal
+
+45
+
+
+
+
+4. Significance of Impact
+Operational Impact
+Time reduction, efficiency improvement
+5
+
+Business Value
+Cost savings, productivity, scalability
+5
+
+AI & Strategic Impact
+Automation, decision-making, ESG/SDG relevance
+5
+
+Subtotal
+
+15
+
+
+
+
+5. Conclusion
+Summary & Feasibility
+Clear conclusion with expected outcomes
+5
+
+Subtotal
+
+5
+
+
+
+
+6. Presentation & Report Quality
+Structure & Organization
+Logical f low, proper headings
+3
+
+Diagrams & Visuals
+Clarity of architecture/lifecycle diagrams
+3
+
+Academic Writing & Referencing
+Clarity, grammar, citation format
+4
+
+Subtotal
+
+10
+
+
+
+
+
+
+TOTAL
+100
+
+
+
+
+
+
+
+

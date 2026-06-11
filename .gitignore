@@ -1,0 +1,6 @@
+.venv/
+.DS_Store
+.Rhistory
+validation_split_person1.txt
+validation_split_person2.txt
+validation_split_person3.txt
