@@ -1,7 +1,5 @@
 # PurityLoop AI — Success Metrics Playbook
-
 ## Strategy, Rationale, and Academic Citations
-
 **Project:** PurityLoop AI | Sunway University Capstone AY2025/26
 **Supervisor:** Dr. Narishah Mohamed Salleh | **ML R&D:** Talvin
 **Written:** 2026-06-11 | **Scope:** Image classification for waste sorting (CV model only)
@@ -65,7 +63,7 @@ Achieving these targets requires three things working together, not just trainin
 
 **Layer 1 — Clean, accurate training data.** The AI can only learn from what it is shown. If the training photos are mislabelled, blurry, duplicated, or dominated by one category, the AI learns the wrong things. The first five phases of this project exist purely to ensure the training data is trustworthy before any learning begins.
 
-**Layer 2 — A model built to handle this specific problem.** Not every AI model is suitable for every problem. We chose a specific model (YOLOv8m-seg) for specific reasons: it can identify multiple objects in one photo simultaneously, it runs fast enough for a conveyor belt, and published research shows it achieves the accuracy targets we need on waste classification problems.
+**Layer 2 — A model built to handle this specific problem.** Not every AI model is suitable for every problem. We chose a specific model (YOLOv8s-seg) for specific reasons: it can identify multiple objects in one photo simultaneously, it trains and iterates faster than larger variants, and published research on the same architecture achieves the accuracy targets we need on waste classification problems. If the small variant cannot reach our target after full tuning, we upgrade to the medium variant (YOLOv8m-seg).
 
 **Layer 3 — A human safety net that never disappears.** No AI model is 100% accurate. The strategy for handling the remaining uncertainty is not to pretend it does not exist — it is to build a system where uncertain decisions are automatically routed to a human operator for review. Those human decisions are then used to make the AI smarter over time.
 
@@ -81,9 +79,9 @@ We then take this general-purpose vision model and specialise it on our 9 waste 
 
 ## PART 3 — THE TEAM WORKFLOW: HOW 3 PEOPLE BUILD 1 MODEL
 
-### One model. Three class groups. Three team members
+### One model. Three class groups. Three team members.
 
-The end product is a single YOLOv8m-seg model that recognises all 9 waste classes. It is trained once on the full 9-class merged dataset and deployed as one file (`best.pt`).
+The end product is a single YOLOv8s-seg model that recognises all 9 waste classes. It is trained once on the full 9-class merged dataset and deployed as one file (`best.pt`).
 
 The reason the dataset was split into three class groups is not about the final model architecture — it is about how three team members divide the work of labelling, quality checking, and diagnostic training before everything is merged. Think of it like three people each writing three chapters of the same book. The chapters exist separately during the writing process. The final published book is one document.
 
@@ -91,25 +89,25 @@ The reason the dataset was split into three class groups is not about the final 
 
 | Group | Classes | Zip file | Owned by |
 |-------|---------|----------|----------|
-| Group 1 | Plastic · Paper · Cardboard | `group1_plastic_paper_cardboard.zip` | Person A |
-| Group 2 | Food/Organic · Battery · General Trash | `group2_food_battery_trash.zip` | Person B |
-| Group 3 | Metal · Glass · Textile | `group3_metal_glass_textile.zip` | Person C |
+| Group 1 | Plastic · Paper · Cardboard | `group1_plastic_paper_cardboard.zip` | Naomi |
+| Group 2 | Food/Organic · Battery · General Trash | `group2_food_battery_trash.zip` | Chris |
+| Group 3 | Metal · Glass · Textile | `group3_metal_glass_textile.zip` | Talvin |
 
 **Why split the work this way:**
 
 **Reason 1 — Manageable labelling load.**
-Labelling 227,490 images as one person is impossible within the project timeline. Splitting by class group gives each person a focused set of categories to annotate with deep familiarity. Person A knows plastic, paper, and cardboard thoroughly. Person B knows batteries. Person C knows metal and glass. Each person becomes an expert on their classes, which produces higher labelling accuracy than if everyone tried to label all 9 classes simultaneously.
+Labelling 227,490 images as one person is impossible within the project timeline. Splitting by class group gives each person a focused set of categories to annotate with deep familiarity. Naomi knows plastic, paper, and cardboard thoroughly. Chris knows batteries. Talvin knows metal and glass. Each person becomes an expert on their classes, which produces higher labelling accuracy than if everyone tried to label all 9 classes simultaneously.
 
 **Reason 2 — Parallel diagnostic training (Phase 3).**
 Each person trains a short diagnostic model on their own labelled slice only. This is a quality control step — not the final model. The diagnostic run reveals labelling mistakes through the confusion matrix before those mistakes contaminate the full merged dataset. Three people training three smaller models simultaneously is also faster than one person waiting for a single large diagnostic run.
 
 **Reason 3 — Battery/metal boundary ownership.**
-Battery (Person B, Group 2) and metal (Person C, Group 3) are visually similar and represent the most dangerous confusion in the project. By giving battery and metal to separate people with separate labelling guides for their respective classes, the boundary decision is explicit and owned. Person B decides what counts as a battery. Person C decides what counts as metal. Any dispute at the Phase 4 cross-audit is resolved together. This is cleaner than both working on both classes simultaneously.
+Battery (Chris, Group 2) and metal (Talvin, Group 3) are visually similar and represent the most dangerous confusion in the project. By giving battery and metal to separate people with separate labelling guides for their respective classes, the boundary decision is explicit and owned. Chris decides what counts as a battery. Talvin decides what counts as metal. Any dispute at the Phase 4 cross-audit is resolved together. This is cleaner than both working on both classes simultaneously.
 
 **How the workflow converges into one model:**
 
-```text
-Person A labels Group 1          Person B labels Group 2          Person C labels Group 3
+```
+Naomi labels Group 1             Chris labels Group 2             Talvin labels Group 3
 (plastic / paper / cardboard)    (food / battery / trash)         (metal / glass / textile)
          │                                │                                │
 Phase 3: each person trains a SHORT diagnostic model on their own slice only
@@ -120,8 +118,9 @@ Phase 5: automated label error scan across all three sets
          │                                │                                │
          └────────────── Phase 6: ALL THREE SETS MERGED ──────────────────┘
                                           │
-                           One combined 9-class dataset
-                    (45,000 images, 5,000 per class, 80/20 split)
+                    One combined 9-class dataset — Phase 6 applies a
+                    5,000/class hard cap → ~45,000 images, 80/20 split
+                    (raw dataset: 227,426 images, unbalanced — cap not yet applied)
                                           │
                         Phase 7: ONE model trained on all 9 classes
                                           │
@@ -153,11 +152,11 @@ The 3 group zips serve Phase 3 only. From Phase 6 onward, there is one dataset a
 
 The structure is not arbitrary. It is derived from two established frameworks that define what a rigorous, defensible model-building process looks like.
 
-#### Framework 1 — CRISP-DM (Cross-Industry Standard Process for Data Mining)
+**Framework 1 — CRISP-DM (Cross-Industry Standard Process for Data Mining)**
 
 CRISP-DM is the industry standard for building data-driven systems. It defines six stages: Business Understanding, Data Understanding, Data Preparation, Modelling, Evaluation, and Deployment (Shearer, 2000). Every one of our 10 phases belongs to one of these six stages. No stage is skipped.
 
-#### Framework 2 — DMAIC (Lean Six Sigma)
+**Framework 2 — DMAIC (Lean Six Sigma)**
 
 DMAIC is a quality management framework: Define, Measure, Analyse, Improve, Control. It is designed to ensure that improvements are measured against baselines, not just claimed. Dr. Narishah's research context directly references this framework. Our pipeline maps to it explicitly.
 
@@ -187,15 +186,13 @@ Similarly, Phase 10 (active learning retrain) is a continuous improvement loop t
 The 5 data preparation phases (1–5) are not redundant — they address different layers of the same problem. Phase 1 addresses photo quality. Phase 2 addresses label creation. Phase 3 addresses per-person label consistency. Phase 4 addresses cross-person label consistency. Phase 5 addresses systematic errors that survived human review. Each catches a class of problem the previous phase cannot. Removing any one of them leaves a known gap in the quality chain.
 
 **Citations:**
-
 - Shearer, C. (2000). The CRISP-DM model: The new blueprint for data mining. *Journal of Data Warehousing*, *5*(4), 13–22. *(Standard CRISP-DM reference)*
 - Wirth, R., & Hipp, J. (2000). CRISP-DM: Towards a standard process model for data mining. *Proceedings of the 4th International Conference on the Practical Applications of Knowledge Discovery and Data Mining*, 29–39. *(Full CRISP-DM framework paper)*
-- Mosqueira-Rey, E., et al. (2023). Human-in-the-loop machine learning: A state of the art. *Artificial Intelligence Review*, *56*(4), 3005–3054. <https://doi.org/10.1007/s10462-022-10246-w> *(HITL justification for phases 3–5)*
+- Mosqueira-Rey, E., et al. (2023). Human-in-the-loop machine learning: A state of the art. *Artificial Intelligence Review*, *56*(4), 3005–3054. https://doi.org/10.1007/s10462-022-10246-w *(HITL justification for phases 3–5)*
 
 ---
 
 The pipeline has three stages:
-
 - **Phases 1–5:** Prepare clean, trustworthy training data
 - **Phases 6–8:** Train and systematically improve the model
 - **Phases 9–10:** Test on genuinely unseen photos before deployment
@@ -224,7 +221,7 @@ A blurry photo of a battery and a blurry photo of a metal can look identical. Tr
 
 The generalisation gap (≤ 10%) is the most important proof that the AI actually learned something. Removing duplicates ensures the validation test is genuinely testing new knowledge, not memory. If duplicates were present, the gap would artificially appear small — masking overfitting.
 
-**Citation:** Assoesoedarso, G., Widjaja, D., & Iskandar, A. A. (2024). Comparative evaluation of perceptual hashing and deep embedding methods for robust and efficient image deduplication. *Electronics*, *15*(7), 1493. <https://doi.org/10.3390/electronics15071493>
+**Citation:** Assoesoedarso, G., Widjaja, D., & Iskandar, A. A. (2024). Comparative evaluation of perceptual hashing and deep embedding methods for robust and efficient image deduplication. *Electronics*, *15*(7), 1493. https://doi.org/10.3390/electronics15071493
 
 ---
 
@@ -246,7 +243,7 @@ A dirty, contaminated item is still labelled by what it is made of — not by ho
 
 The single hardest labelling decision in the entire project is distinguishing a 9-volt battery from a small aluminium container. Both are metallic, cylindrical, and approximately the same size. The labelling guide defines this boundary explicitly so every team member draws the same distinction. Inconsistency at this step propagates into a model that cannot reliably tell them apart — which is a safety risk.
 
-**Citation:** Sakr, G. E., Mokbel, M. F., & Darwish, A. I. (2022). Computer vision for solid waste sorting: A critical review of academic research. *Waste Management*, *142*, 29–43. <https://doi.org/10.1016/j.wasman.2022.02.009>
+**Citation:** Sakr, G. E., Mokbel, M. F., & Darwish, A. I. (2022). Computer vision for solid waste sorting: A critical review of academic research. *Waste Management*, *142*, 29–43. https://doi.org/10.1016/j.wasman.2022.02.009
 
 ---
 
@@ -256,17 +253,41 @@ The single hardest labelling decision in the entire project is distinguishing a 
 
 After each team member labels their own set of photos, we run a short training session on each person's labels separately. We are not trying to build the final model here. We are using the AI as a quality control instrument to find labelling mistakes before they contaminate the merged dataset.
 
-**How this works:**
+> ⚠️ **Critical distinction — Phase 3 metrics are NOT the same as production metrics.**
+>
+> The individual diagnostic models are 3-class models. The production model is a 9-class model. These two problems are fundamentally different in difficulty and the same success metric numbers mean different things in each context. Do not use Phase 3 results to predict or validate production performance.
+>
+> | | Individual diagnostic model (Phase 3) | Production model (Phases 7–9) |
+> |-|--------------------------------------|-------------------------------|
+> | Classes | 3 | 9 |
+> | Random guess floor | 33.3% | 11.1% |
+> | Purpose | Detect label errors in one person's slice | Deploy on a real conveyor belt |
+> | Pass gate | AP ≥ 0.60 per class | mAP@0.5 ≥ 0.85 across all 9 classes |
+> | Battery AP meaning | Battery vs food/trash only — **metal is absent** | Battery vs all 8 other classes including metal |
+> | Valid for production claim? | ❌ No | ✅ Yes |
+>
+> **The most important consequence:** Chris's battery model will appear to classify batteries well — because it has never seen a metal can. The hardest battery/metal confusion does not exist in the diagnostic model. A battery AP of 0.85 in Phase 3 does **not** mean battery AP will be 0.85 in the production model. The production model must be evaluated on all 9 classes together before any claim about battery accuracy can be made.
 
-When a person has consistently mislabelled a category — say, they labelled 40 out of 200 batteries as "metal" — the AI trained on their data will reflect that confusion. The confusion matrix (a table showing which categories the AI confuses with each other) will show a bright cell at the battery-vs-metal intersection. That bright cell is not an AI failure; it is a signal pointing directly to a labelling problem that must be fixed.
+**How Phase 3 works:**
 
-**The diagnostic logic in practice:**
+When a person has consistently mislabelled a category — say, they labelled 40 out of 200 batteries as "food waste" — the AI trained on their data will reflect that confusion. The confusion matrix will show a bright cell at the battery-vs-food row. That cell is not an AI failure; it is pointing directly to a labelling problem in that person's slice that must be fixed before the merge.
 
-- Battery row confused with metal → review battery labels, look for photos of metal tins that were mislabelled as batteries
-- Paper row confused with cardboard → the labelling guide boundary between flat paper and corrugated cardboard is unclear; update the guide, re-annotate ambiguous items
-- Food waste row confused with general trash → the guide does not clearly define where food waste ends and general contamination begins; resolve and re-annotate
+**What Phase 3 CAN detect (within-group confusions):**
 
-**Pass gate:** Every category must reach at least 60% accuracy (AP ≥ 0.60) on each person's own validation photos. Any category below this threshold has a labelling problem, not a model capacity problem. The fix is always in the labels at this stage.
+- Chris: battery mislabelled as general_trash or food_organic
+- Chris: food_organic mislabelled as general_trash (and vice versa)
+- Naomi: cardboard mislabelled as paper
+- Talvin: metal mislabelled as glass or textile
+
+**What Phase 3 CANNOT detect (cross-group confusions — only visible after the merge):**
+
+- Battery (Group 2) confused with metal (Group 3) — the most dangerous confusion in the project
+- Cardboard (Group 1) confused with general_trash (Group 2)
+- Glass (Group 3) confused with plastic (Group 1)
+
+These cross-group confusions are invisible to each individual model because the classes from other groups simply do not exist in that model's universe. They will only surface in Phase 7, when all 9 classes are trained together. This is why Phase 7 (the first 9-class training run) is essential — it is the first point in the pipeline where cross-group confusions can be detected and addressed.
+
+**Pass gate:** Every category must reach at least 60% accuracy (AP ≥ 0.60) on each person's own validation photos. Any category below this threshold indicates a within-group labelling problem. The fix is always in the labels at this stage — not in the model.
 
 **Why 100 training cycles (epochs), not the full 300:**
 
@@ -274,13 +295,101 @@ This phase is a diagnostic tool, not the final training run. 100 cycles gives en
 
 **Expected results before training (based on literature):**
 
-| Person | Data slice | Expected accuracy range |
-|--------|-----------|------------------------|
-| Person A | Studio datasets (TrashNet, RealWaste) | 60–72% mAP@0.5 |
-| Person B | Larger mixed datasets | 64–76% mAP@0.5 |
-| Person C | Edge cases, piled items, odd angles | 48–62% mAP@0.5 |
+| Person | Data slice | Classes trained | Expected mAP@0.5 range | Why |
+|--------|-----------|----------------|----------------------|-----|
+| Naomi | TrashNet, RealWaste | plastic, paper, cardboard | 60–72% | Clean studio images; 3-class problem is relatively distinct |
+| Chris | Mixed classification datasets | food_organic, battery, general_trash | 64–76% | Larger slice; but food/trash boundary is genuinely ambiguous |
+| Talvin | TACO, edge cases | metal, glass, textile | 48–62% | Deliberately hard images (piled, occluded, odd angles) |
 
-Person C's lower expected score does not mean worse labelling — it means Person C deliberately annotated the hardest images. A lower score on hard images is expected and informative.
+Talvin's lower expected score does not mean worse labelling — it means Talvin deliberately annotated the hardest images. A lower score on hard images is expected and informative.
+
+**These ranges are higher than the production model target (≥ 85%) for one reason only:** 3-class problems are easier. Do not interpret Phase 3 results as evidence that the production model will meet its targets. They are not comparable.
+
+---
+
+### Phase 3 — Individual Model Success Metrics
+
+These are the complete, standalone success metrics for each person's diagnostic model. They are separate from and cannot be compared with the production model metrics in Part 1.
+
+**Primary metric — Confusion matrix (not a number, a pattern):**
+
+The confusion matrix is a grid showing, for each class, how often the model correctly identified it versus what it confused it with. It is the most important Phase 3 output. A number like "mAP = 0.67" tells you something is wrong. The confusion matrix tells you exactly *what* is wrong and *which labels to fix*.
+
+Reading rule:
+- **Diagonal cell ≥ 0.60** for every class → labelling is clean, proceed to Phase 4
+- **Off-diagonal cell > 0.30 in any row** → investigate that confusion pair; likely a labelling boundary problem
+- **Diagonal cell < 0.50 and off-diagonal > 0.40** → clear labelling error; re-annotate before proceeding
+
+---
+
+**Per-group pass gates:**
+
+**Group 1 — Naomi (plastic, paper, cardboard)**
+
+| Metric | Pass gate | Action if failed |
+|--------|----------|-----------------|
+| mAP@0.5 overall | ≥ 0.60 | Check confusion matrix for which class is dragging the score down |
+| AP — plastic | ≥ 0.60 | Review plastic labels; check for plastic bags mislabelled as textile or trash |
+| AP — paper | ≥ 0.60 | Review paper labels; check for paper confused with cardboard |
+| AP — cardboard | ≥ 0.60 | Review cardboard labels; check for flat cardboard mislabelled as paper |
+| Confusion matrix: paper ↔ cardboard off-diagonal | < 0.30 | The paper/cardboard boundary is the highest-risk confusion in this group; update labelling guide if exceeded |
+
+Key watch point: paper and cardboard are the most visually similar pair in Group 1. A flat unfolded cardboard sheet and a thick sheet of paper are genuinely hard to distinguish. Any confusion in this pair needs a clear labelling guide update before Phase 4.
+
+---
+
+**Group 2 — Chris (food_organic, battery, general_trash)**
+
+| Metric | Pass gate | Action if failed |
+|--------|----------|-----------------|
+| mAP@0.5 overall | ≥ 0.60 | Check confusion matrix |
+| AP — food_organic | ≥ 0.60 | Review food labels; check for food residue on containers being labelled as food rather than the container material |
+| AP — battery | ≥ 0.65 | Battery gets a stricter diagnostic threshold — see note below |
+| AP — general_trash | ≥ 0.60 | Review trash labels; check for food waste mislabelled as general trash |
+| Confusion matrix: battery ↔ general_trash off-diagonal | < 0.25 | Very strict — a battery entering the trash stream is still a safety risk |
+| Confusion matrix: food_organic ↔ general_trash off-diagonal | < 0.35 | Acceptable boundary confusion — resolve with labelling guide |
+
+> **Why battery AP pass gate is 0.65 here, not 0.60:**
+> Battery is safety-critical. Even within Group 2, the labelling must be cleaner than average. Note that this 0.65 threshold is a *diagnostic* gate only — it does not mean battery is safe in production. In production, battery competes with metal (which is absent in Group 2). The 0.65 at Phase 3 only confirms Chris labelled batteries consistently within their own class group.
+
+> **What Phase 3 cannot tell you about battery:** If Chris's battery AP is 0.78 at Phase 3, that does not mean battery AP will be 0.78 in the production model. In production, battery will also need to be separated from metal, glass containers, and other metallic objects from Group 3 — none of which exist in Chris's diagnostic model. Battery's true production performance only becomes measurable at Phase 7.
+
+---
+
+**Group 3 — Talvin (metal, glass, textile)**
+
+| Metric | Pass gate | Action if failed |
+|--------|----------|-----------------|
+| mAP@0.5 overall | ≥ 0.48 | Lower threshold reflects deliberately hard edge-case images |
+| AP — metal | ≥ 0.55 | Review metal labels; crushed cans and flat metal sheets may be labelled inconsistently |
+| AP — glass | ≥ 0.55 | Review glass labels; broken glass fragments vs intact bottles may differ |
+| AP — textile | ≥ 0.50 | Lowest gate — highest variation class (torn shirts, plastic bags, fabric scraps all map to textile) |
+| Confusion matrix: metal ↔ glass off-diagonal | < 0.35 | Both are often cylindrical containers; boundary must be in the labelling guide |
+
+> **Why Group 3 has lower gates than Groups 1 and 2:**
+> Talvin deliberately annotated edge cases — items at odd angles, piled up, partially obscured. A lower AP on these images does not mean the labels are wrong. It means the problem is genuinely harder. The confusion matrix diagnosis is more important than the mAP number for Group 3. If the confusion matrix shows no clear pattern of systematic errors, Group 3 passes even at the lower thresholds.
+
+---
+
+**What Phase 3 does NOT measure (and why):**
+
+| Metric | Why not measured at Phase 3 |
+|--------|-----------------------------|
+| mAP@0.5:0.95 | Too strict for diagnostic purposes; segmentation mask precision is not the focus here — label category errors are |
+| Inference speed (FPS) | Hardware varies per person; speed is not a Phase 3 concern |
+| Generalisation gap | No quarantine set at Phase 3; the diagnostic model is not evaluated for production readiness |
+| Battery AP as a production safety gate | Battery here only competes with food/trash — the metal confusion is invisible. Production battery AP is only measurable at Phase 7 |
+
+**Full Phase 3 vs Production metrics comparison:**
+
+| Metric | Phase 3 individual model | Production model (Phase 7–9) |
+|--------|--------------------------|------------------------------|
+| mAP@0.5 target | ≥ 0.48–0.60 (per group) | ≥ 0.85 |
+| Per-class AP target | ≥ 0.50–0.65 (per class, per group) | ≥ 0.80 for battery; ≥ 0.85 overall |
+| Primary output | Confusion matrix — find label errors | mAP, precision, recall — validate production readiness |
+| Battery gate | ≥ 0.65 (within Group 2 only) | ≥ 0.80 (competing with all 9 classes including metal) |
+| Cross-group confusions visible? | ❌ No | ✅ Yes |
+| Comparable to each other? | ❌ No | ✅ Yes |
 
 ---
 
@@ -288,7 +397,7 @@ Person C's lower expected score does not mean worse labelling — it means Perso
 
 **The plain English version:**
 
-Three people have now labelled three separate sets of photos. Before we combine them, we need to verify that all three people mean the same thing when they write "plastic" or "battery." If Person A and Person B would label the same photo differently, the merged dataset contains contradictory lessons — and the AI cannot converge on a consistent answer when the training data disagrees with itself.
+Three people have now labelled three separate sets of photos. Before we combine them, we need to verify that all three people mean the same thing when they write "plastic" or "battery." If Naomi and Chris would label the same photo differently, the merged dataset contains contradictory lessons — and the AI cannot converge on a consistent answer when the training data disagrees with itself.
 
 **The agreement test:**
 
@@ -307,7 +416,7 @@ Team members compare each other's labels on a shared set of photos that everyone
 
 An AI trained on contradictory labels will appear confused not because it is too simple, but because it was taught conflicting information. A battery labelled as battery in 80 photos and as metal in 20 photos produces a model that is 80% confident about batteries at best — the 20 contradictory examples act as persistent noise that caps accuracy. Phase 4 removes that noise before it enters training.
 
-**Citation:** Mosqueira-Rey, E., Hernández-Pereira, E., Alonso-Ríos, D., Bobes-Bascarán, J., & Fernández-Leal, Á. (2023). Human-in-the-loop machine learning: A state of the art. *Artificial Intelligence Review*, *56*(4), 3005–3054. <https://doi.org/10.1007/s10462-022-10246-w>
+**Citation:** Mosqueira-Rey, E., Hernández-Pereira, E., Alonso-Ríos, D., Bobes-Bascarán, J., & Fernández-Leal, Á. (2023). Human-in-the-loop machine learning: A state of the art. *Artificial Intelligence Review*, *56*(4), 3005–3054. https://doi.org/10.1007/s10462-022-10246-w
 
 ---
 
@@ -326,7 +435,6 @@ The key insight from Northcutt et al. (2021) is this: *a correct label will neve
 **What happens to flagged photos:**
 
 Flagged photos are reviewed by the team. They are either:
-
 - Corrected and re-labelled (the model was right, the human was wrong)
 - Kept as-is with a note (the model was wrong; the human label was correct; this photo is kept but monitored)
 - Removed entirely (the photo is genuinely too ambiguous to label with confidence)
@@ -336,9 +444,8 @@ Flagged photos are reviewed by the team. They are either:
 Systematic label noise is the most common reason a model plateaus below its accuracy target. A model trained on 5% mislabelled data can rarely exceed 95% accuracy — the noise creates a ceiling. By removing systematic errors before Phase 7 training begins, we raise the achievable ceiling for all subsequent tuning.
 
 **Citations:**
-
-- Northcutt, C. G., Jiang, L., & Chuang, I. L. (2021). Confident learning: Estimating uncertainty in dataset labels. *Journal of Artificial Intelligence Research*, *70*, 1055–1093. <https://doi.org/10.1613/jair.1.12125>
-- Kertész, C. (2021). Automated cleanup of the ImageNet dataset by model consensus, explainability and confident learning. *arXiv*, 2103.16324. <https://doi.org/10.48550/arXiv.2103.16324> ⚠️ *arXiv preprint — verify peer-reviewed version before final submission*
+- Northcutt, C. G., Jiang, L., & Chuang, I. L. (2021). Confident learning: Estimating uncertainty in dataset labels. *Journal of Artificial Intelligence Research*, *70*, 1055–1093. https://doi.org/10.1613/jair.1.12125
+- Kertész, C. (2021). Automated cleanup of the ImageNet dataset by model consensus, explainability and confident learning. *arXiv*, 2103.16324. https://doi.org/10.48550/arXiv.2103.16324 ⚠️ *arXiv preprint — verify peer-reviewed version before final submission*
 
 ---
 
@@ -362,7 +469,6 @@ After balancing: if the AI always guessed "food waste," it would be right 11.1% 
 **Rule 2 — Stratified 80/20 split with zero data leakage:**
 
 The dataset is divided into two groups that never overlap:
-
 - **Training set (80%)** — what the AI learns from. It sees these photos thousands of times.
 - **Validation set (20%)** — what we use to measure performance. The AI never trains on these photos.
 
@@ -370,7 +476,7 @@ The dataset is divided into two groups that never overlap:
 
 "Zero data leakage" means the same photo never appears in both sets. A photo that is in both training and validation would mean the AI is being tested on photos it already memorised — falsely inflating the score.
 
-**Citation:** Northcutt, C. G., et al. (2021). Confident learning. *JAIR*, *70*, 1055–1093. <https://doi.org/10.1613/jair.1.12125>
+**Citation:** Northcutt, C. G., et al. (2021). Confident learning. *JAIR*, *70*, 1055–1093. https://doi.org/10.1613/jair.1.12125
 
 ---
 
@@ -390,28 +496,28 @@ Baseline 2 is that starting point.
 
 ### Phase 7 — Complete Initial Parameter Table (Benchmark Configuration)
 
-Every parameter below is the YOLOv8m-seg default as published by Jocher, Chaurasia, & Qiu (2023). No parameter is changed from default in Phase 7. This is the benchmark configuration — the exact settings that produce Baseline 2.
+Every parameter below is the YOLOv8s-seg default as published by Jocher, Chaurasia, & Qiu (2023). No parameter is changed from default in Phase 7. This is the benchmark configuration — the exact settings that produce Baseline 2. The primary reference for this initial configuration is Wang et al. (2026), who applied YOLOv8-seg to garbage segmentation on the TACO dataset using the same architecture and achieved a mask mAP@50 of 82.6% — establishing the upper bound we expect before domain-specific tuning.
 
 **Core training parameters:**
 
 | Parameter | Value used | Plain English meaning | Why this value | Citation |
 |-----------|------------|----------------------|---------------|----------|
-| `model` | YOLOv8m-seg | Which AI architecture we use | Medium-size variant: best balance of accuracy vs speed across hardware | Ding et al. (2024) |
+| `model` | YOLOv8s-seg | Which AI architecture we use | Small variant: faster training, lower memory requirement, allows rapid iteration. Wang et al. (2026) applied YOLOv8-seg to garbage segmentation on TACO and achieved mask mAP@50 of 82.6%. If Phase 8 tuning cannot close the gap to ≥ 0.85, upgrade path is YOLOv8m-seg | Wang et al. (2026); Ding et al. (2024) |
 | `pretrained` | True (COCO weights) | Start from a model that already knows how to see general objects | Transfer learning requires fewer images and less compute than training from scratch | Jaikumar et al. (2020) |
-| `epochs` | 100 | How many times the AI studies the full training dataset from start to finish | 100 gives a clear convergence signal for baseline measurement; Phase 8 extends to 300 | YOLOv8 default; Midigudla et al. (2025) |
-| `imgsz` | 640 | The resolution each photo is resized to before the AI sees it (640 × 640 pixels) | YOLOv8 standard resolution; Phase 8 Run 1 tests 1280 to evaluate the trade-off | Jocher et al. (2023) |
-| `batch` | Set per machine | How many photos the AI studies simultaneously before updating its knowledge | Start at 16 and halve if out-of-memory errors occur. Larger batch = more stable gradient updates; smaller batch = less memory required. Results must be reported with the batch size used | Jocher et al. (2023) |
-| `patience` | 50 | How many consecutive epochs with no improvement before training stops early | Prevents wasted compute if the model has already converged; 50 is conservative enough to not stop too early | YOLOv8 default |
+| `epochs` | 100 | How many times the AI studies the full training dataset from start to finish | 100 gives a clear convergence signal for baseline measurement; Phase 8 extends to 300 | Ajayi et al. (2024); Midigudla et al. (2025) |
+| `imgsz` | 640 | The resolution each photo is resized to before the AI sees it (640 × 640 pixels) | YOLOv8 standard resolution; Phase 8 Run 1 tests 1280 to evaluate the trade-off | Jocher et al. (2023); Ren et al. (2024); Steindl et al. (2025) |
+| `batch` | Set per machine | How many photos the AI studies simultaneously before updating its knowledge | Start at 16 and halve if out-of-memory errors occur. Larger batch = more stable gradient updates; smaller batch = less memory required. Results must be reported with the batch size used | Jocher et al. (2023); Ren et al. (2024); Steindl et al. (2025); Abo-Zahhad & Abo-Zahhad (2025) |
+| `patience` | 50 | How many consecutive epochs with no improvement before training stops early | Prevents wasted compute if the model has already converged. 50 is the researcher's choice based on dataset size and training budget — no citation required for the value itself. Early stopping concept: Prechelt (1998) | Prechelt (1998) |
 | `workers` | Set per machine | Background processes loading images while the AI is training | Match to the number of CPU cores available; 8 is a reasonable default | Jocher et al. (2023) |
 
 **Optimiser parameters:**
 
 | Parameter | Value | Plain English meaning | Why this value | Citation |
 |-----------|-------|----------------------|---------------|----------|
-| `optimizer` | SGD | The algorithm that adjusts the AI's internal weights after studying each batch of photos | SGD with momentum is the standard choice for YOLO-family models; produces stable convergence on large datasets | Redmon & Farhadi (2018); Jocher et al. (2023) |
-| `lr0` | 0.01 | Initial learning rate — how large each knowledge update is at the start of training | 0.01 is the standard starting rate for fine-tuning from COCO pretrained weights; too high causes divergence, too low causes stagnation | Jocher et al. (2023) |
+| `optimizer` | SGD | The algorithm that adjusts the AI's internal weights after studying each batch of photos | SGD with momentum is the standard choice for YOLO-family models; produces stable convergence on large datasets | Redmon & Farhadi (2018); Jocher et al. (2023); Abo-Zahhad & Abo-Zahhad (2025) |
+| `lr0` | 0.01 | Initial learning rate — how large each knowledge update is at the start of training | 0.01 is the standard starting rate for fine-tuning from COCO pretrained weights; too high causes divergence, too low causes stagnation | Jocher et al. (2023); Abo-Zahhad & Abo-Zahhad (2025) |
 | `lrf` | 0.01 | Final learning rate as a fraction of lr0 — how large updates are at the end | Training uses cosine annealing: the learning rate gradually decreases from lr0 to lr0 × lrf over training. Smaller updates near convergence prevent overshooting the optimal weights | Jocher et al. (2023) |
-| `momentum` | 0.937 | SGD momentum — carries forward the direction of previous updates to smooth out noisy batches | High momentum (close to 1.0) is standard for large-batch image training; 0.937 is the empirically validated value for YOLO models | Sutskever, Martens, Dahl, & Hinton (2013); Jocher et al. (2023) |
+| `momentum` | 0.937 | SGD momentum — carries forward the direction of previous updates to smooth out noisy batches | High momentum (close to 1.0) is standard for large-batch image training; 0.937 is the empirically validated value for YOLO models | Sutskever, Martens, Dahl, & Hinton (2013); Jocher et al. (2023); Abo-Zahhad & Abo-Zahhad (2025) |
 | `weight_decay` | 0.0005 | Penalty added to training for having very large internal weights | Acts as a regulariser — prevents the model from becoming overspecialised to training photos. Equivalent to penalising a student for memorising one specific example instead of understanding the concept | Jocher et al. (2023) |
 | `warmup_epochs` | 3.0 | Number of epochs at the start where the learning rate ramps up gradually instead of starting at full lr0 | Prevents unstable weight updates in the first few epochs when the model is adjusting from COCO weights to the waste dataset | Jocher et al. (2023) |
 | `warmup_momentum` | 0.8 | Momentum used during the warmup period | Lower momentum during warmup reduces oscillation while the model is adjusting to the new task | Jocher et al. (2023) |
@@ -460,11 +566,16 @@ Every parameter below is the YOLOv8m-seg default as published by Jocher, Chauras
 Everything absent from Phase 7 is absent deliberately. Phase 7 is the honest zero — the score we earn before any optimisation. Phase 8 adds each item one at a time and measures whether it helped.
 
 **Citations for this parameter table:**
-
-- Jocher, G., Chaurasia, A., & Qiu, J. (2023). *Ultralytics YOLO* (Version 8.0.0) [Software]. GitHub. <https://github.com/ultralytics/ultralytics> *(Primary source for all default parameter values)*
-- Bochkovskiy, A., Wang, C.-Y., & Liao, H.-Y. M. (2020). YOLOv4: Optimal speed and accuracy of object detection. *arXiv*, 2004.10934. <https://doi.org/10.48550/arXiv.2004.10934> *(Mosaic augmentation — introduced in YOLOv4, carried into v8)*
+- Jocher, G., Chaurasia, A., & Qiu, J. (2023). *Ultralytics YOLO* (Version 8.0.0) [Software]. GitHub. https://github.com/ultralytics/ultralytics *(Primary source for all default parameter values)*
+- Bochkovskiy, A., Wang, C.-Y., & Liao, H.-Y. M. (2020). YOLOv4: Optimal speed and accuracy of object detection. *arXiv*, 2004.10934. https://doi.org/10.48550/arXiv.2004.10934 *(Mosaic augmentation — introduced in YOLOv4, carried into v8)*
 - Sutskever, I., Martens, J., Dahl, G., & Hinton, G. (2013). On the importance of initialization and momentum in deep learning. *Proceedings of the 30th International Conference on Machine Learning (ICML)*, *28*(3), 1139–1147. *(SGD momentum rationale)*
-- Ghiasi, G., et al. (2021). Simple copy-paste. *CVPR 2021*. <https://doi.org/10.1109/CVPR46437.2021.00294> *(Copy-paste — disabled in Phase 7, measured in Phase 8)*
+- Ghiasi, G., et al. (2021). Simple copy-paste. *CVPR 2021*. https://doi.org/10.1109/CVPR46437.2021.00294 *(Copy-paste — disabled in Phase 7, measured in Phase 8)*
+- Ajayi, O. G., Ibrahim, P. O., & Adegboyega, O. S. (2024). Effect of hyperparameter tuning on the performance of YOLOv8 for multi crop classification on UAV images. *Applied Sciences*, *14*(13), 5708. https://doi.org/10.3390/app14135708 *(Empirical YOLOv8 hyperparameter tuning study — epochs, lr0, batch)*
+- Ren, Y., Li, Y., & Gao, X. (2024). An MRS-YOLO model for high-precision waste detection and classification. *Sensors*, *24*(13), 4339. https://doi.org/10.3390/s24134339 *(Waste classification — batch=16, imgsz=640, epochs=300)*
+- Steindl, G., Baca, A., & Kornfeind, P. (2025). Influences and training strategies for effective object detection in challenging environments using YOLO NAS-L. *Sensors*, *26*(1), 190. https://doi.org/10.3390/s26010190 *(Batch size, imgsz=640, pretrained COCO weights analysis)*
+- Abo-Zahhad, M. M., & Abo-Zahhad, M. (2025). Real-time intelligent garbage monitoring and efficient collection using YOLOv8 and YOLOv5 deep learning models for environmental sustainability. *Scientific Reports*, *15*, 16024. https://doi.org/10.1038/s41598-025-99885-x *(Waste — SGD, lr=0.01, momentum=0.95, batch=16)*
+- Prechelt, L. (1998). Early stopping — but when? In G. Orr & K.-R. Müller (Eds.), *Neural Networks: Tricks of the Trade* (Lecture Notes in Computer Science, vol. 1524, pp. 55–69). Springer. https://doi.org/10.1007/3-540-49430-8_3 *(Early stopping concept — patience parameter rationale)*
+- Wang, Z., Zhang, Z., Wang, T., Zhang, X., Ren, Z., & Zhang, Y. (2026). Garbage recognition based on YOLOv8-seg: An instance segmentation approach for automated waste sorting. *International Core Journal of Engineering*, *12*(4), 267–278. https://doi.org/10.6919/ICJE.202604_12(4).0029 *(Primary reference for Phase 7 initial model configuration — YOLOv8-seg on TACO, mask mAP@50 = 82.6%)*
 
 ---
 
@@ -479,8 +590,7 @@ Everything absent from Phase 7 is absent deliberately. Phase 7 is the honest zer
 These numbers are low compared to our targets — deliberately so. The gap between Baseline 2 and the target defines exactly how much work Phase 8 needs to do.
 
 **Citations:**
-
-- Ding, R., Jiang, K., Cheng, G., Liu, Z., Yang, Q., Zhou, Z., Bi, S., & Xiao, N. (2024). Performance comparison of YOLOv5, YOLOv8, and RCNN for waste detection and classification. *2024 IEEE IICAIET*, 1–7. <https://doi.org/10.1109/iicaiet62352.2024.10730703>
+- Ding, R., Jiang, K., Cheng, G., Liu, Z., Yang, Q., Zhou, Z., Bi, S., & Xiao, N. (2024). Performance comparison of YOLOv5, YOLOv8, and RCNN for waste detection and classification. *2024 IEEE IICAIET*, 1–7. https://doi.org/10.1109/iicaiet62352.2024.10730703
 - Midigudla, S. R. K., Suresh, A., Smolarski, J., & Elamer, A. A. (2025). AI-driven waste classification system using YOLOv8 for sustainable waste management. *(Verify full journal citation before submission)*
 
 ---
@@ -501,7 +611,7 @@ One change at a time is slower, but every improvement is traceable, citable, and
 
 ---
 
-#### Tuning Run 1 — Higher resolution images (imgsz: 640 → 1280 pixels)
+**Tuning Run 1 — Higher resolution images (imgsz: 640 → 1280 pixels)**
 
 Think of the difference between reading a document on a small phone screen versus a large monitor. At 640 pixels, small objects like batteries appear very small in the image — the AI has fewer pixels of information to work with when making its decision. At 1280 pixels, the same battery appears twice as large in each dimension (four times the pixel area). The AI has significantly more detail to detect the difference between a battery and a small aluminium can.
 
@@ -511,7 +621,7 @@ Expected effect: +3–8% improvement in battery accuracy specifically.
 
 ---
 
-#### Tuning Run 2 — Class loss weighting (upweight battery and textile)
+**Tuning Run 2 — Class loss weighting (upweight battery and textile)**
 
 During training, the AI optimises a score that summarises how wrong its predictions are. By default, being wrong about a battery counts the same as being wrong about any other category. We change this by making errors on battery and textile count more — specifically 2× more for battery and 1.5× more for textile.
 
@@ -525,7 +635,7 @@ Expected effect: improved precision and recall on the two hardest minority categ
 
 ---
 
-#### Tuning Run 3 — Copy-Paste Augmentation
+**Tuning Run 3 — Copy-Paste Augmentation**
 
 Copy-paste augmentation creates synthetic training scenarios by taking an object from one image and pasting it on top of another image. The result is a new training photo showing two overlapping items.
 
@@ -535,11 +645,11 @@ Copy-paste augmentation solves this without requiring thousands of new photos. W
 
 Expected effect: improved mAP@0.5:0.95 — the strict accuracy metric that measures how precisely the AI locates item boundaries, which is hardest when items overlap.
 
-**Citation:** Ghiasi, G., Cui, Y., Srinivas, A., Qian, R., Lin, T.-Y., Cubuk, E. D., Le, Q. V., & Zoph, B. (2021). Simple copy-paste is a strong data augmentation method for instance segmentation. *CVPR 2021*, 2918–2928. <https://doi.org/10.1109/CVPR46437.2021.00294>
+**Citation:** Ghiasi, G., Cui, Y., Srinivas, A., Qian, R., Lin, T.-Y., Cubuk, E. D., Le, Q. V., & Zoph, B. (2021). Simple copy-paste is a strong data augmentation method for instance segmentation. *CVPR 2021*, 2918–2928. https://doi.org/10.1109/CVPR46437.2021.00294
 
 ---
 
-#### Tuning Run 4 — Rotation Augmentation (degrees: 0 → ±30°)
+**Tuning Run 4 — Rotation Augmentation (degrees: 0 → ±30°)**
 
 Items on a conveyor belt do not arrive perfectly upright. A plastic bottle might be lying on its side, tilted 45 degrees, or tumbling as the belt moves. If the AI has only seen upright items during training, it will struggle to classify the same item at an unusual angle.
 
@@ -578,7 +688,7 @@ Before adding more tuning runs, read the results table and identify exactly whic
 
 ---
 
-#### Extended Run 5 — Switch optimizer from SGD to AdamW
+**Extended Run 5 — Switch optimizer from SGD to AdamW**
 
 SGD with momentum is the standard YOLO optimizer and is the correct starting point. However, for datasets with high class imbalance or noisy labels — both of which apply to this project — AdamW sometimes produces better convergence. AdamW handles irregular gradient surfaces more gracefully than SGD because it adapts the learning rate per parameter rather than using one global rate.
 
@@ -586,11 +696,11 @@ When to try: if mAP has plateaued in the 0.78–0.84 range across multiple runs 
 
 Setting: `optimizer=AdamW`, `lr0=0.001` (lower than SGD default — AdamW is sensitive to high learning rates).
 
-**Citation:** Loshchilov, I., & Hutter, F. (2019). Decoupled weight decay regularization. *Proceedings of the International Conference on Learning Representations (ICLR 2019)*. <https://doi.org/10.48550/arXiv.1711.05101>
+**Citation:** Loshchilov, I., & Hutter, F. (2019). Decoupled weight decay regularization. *Proceedings of the International Conference on Learning Representations (ICLR 2019)*. https://doi.org/10.48550/arXiv.1711.05101
 
 ---
 
-#### Extended Run 6 — Focal Loss (fl_gamma > 0)
+**Extended Run 6 — Focal Loss (fl_gamma > 0)**
 
 Focal loss is a modification to the standard cross-entropy loss that reduces the weight given to easy, already-correctly-classified examples. The effect: the model stops spending training capacity on items it already recognises well (clear plastic bottles, obvious cardboard boxes) and redirects that capacity to the hard examples it keeps getting wrong (batteries that look like metal cans, textiles that look like general trash).
 
@@ -598,11 +708,11 @@ Setting: `fl_gamma=1.5`. Start here before increasing further — values above 2
 
 When to try: if battery AP remains below 0.80 after Run 2's class weight upweighting. Focal loss attacks the hard-example problem from a different angle than class weighting — they are complementary interventions.
 
-**Citation:** Lin, T.-Y., Goyal, P., Girshick, R., He, K., & Dollár, P. (2017). Focal loss for dense object detection. *Proceedings of the IEEE International Conference on Computer Vision (ICCV)*, 2980–2988. <https://doi.org/10.1109/ICCV.2017.324>
+**Citation:** Lin, T.-Y., Goyal, P., Girshick, R., He, K., & Dollár, P. (2017). Focal loss for dense object detection. *Proceedings of the IEEE International Conference on Computer Vision (ICCV)*, 2980–2988. https://doi.org/10.1109/ICCV.2017.324
 
 ---
 
-#### Extended Run 7 — Mixup Augmentation
+**Extended Run 7 — Mixup Augmentation**
 
 Mixup creates training images by blending two photos together at partial transparency — for example, a plastic bottle image blended 40% with a cardboard image. The label is a weighted combination: 40% plastic, 60% cardboard.
 
@@ -612,11 +722,11 @@ Setting: `mixup=0.1` (10% of training batches use mixup). Do not exceed 0.2 for 
 
 When to try: if generalisation gap exceeds 10% or precision is below 0.85 after the initial 4 runs.
 
-**Citation:** Zhang, H., Cissé, M., Dauphin, Y. N., & Lopez-Paz, D. (2018). mixup: Beyond empirical risk minimization. *Proceedings of the International Conference on Learning Representations (ICLR 2018)*. <https://doi.org/10.48550/arXiv.1710.09412>
+**Citation:** Zhang, H., Cissé, M., Dauphin, Y. N., & Lopez-Paz, D. (2018). mixup: Beyond empirical risk minimization. *Proceedings of the International Conference on Learning Representations (ICLR 2018)*. https://doi.org/10.48550/arXiv.1710.09412
 
 ---
 
-#### Extended Run 8 — Label Smoothing
+**Extended Run 8 — Label Smoothing**
 
 Label smoothing prevents the model from becoming overconfident. In standard training, the correct label is 100% ("this is definitely a battery"). Label smoothing changes it to, say, 95% ("this is very likely a battery but there is 5% uncertainty"). This sounds counter-intuitive — why introduce fake uncertainty? — but overconfident models generalise poorly. A model trained to be 100% certain tends to fail badly on items that are slightly different from its training examples.
 
@@ -624,7 +734,7 @@ Setting: `label_smoothing=0.1`.
 
 When to try: if the generalisation gap is above 10% and the model shows very high training accuracy (>95%) but lower validation accuracy — a classic sign of overconfidence.
 
-**Citation:** Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016). Rethinking the Inception architecture for computer vision. *Proceedings of CVPR*, 2818–2826. <https://doi.org/10.1109/CVPR.2016.308>
+**Citation:** Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016). Rethinking the Inception architecture for computer vision. *Proceedings of CVPR*, 2818–2826. https://doi.org/10.1109/CVPR.2016.308
 
 ---
 
@@ -687,7 +797,6 @@ Starting from scratch every time would mean throwing away everything the model h
 **What we do instead — fine-tuning:**
 
 We keep the current best model as a starting point and make targeted, small updates. Specifically:
-
 - The first two-thirds of the model (the visual processing layers) are frozen — they are not updated. This preserves everything the model has already learned about general visual patterns.
 - Only the final decision-making layers are updated, using the photos that caused Phase 9 failures as new training examples.
 - The learning rate (how large each update is) is set very low — 0.0005 instead of a typical 0.01. Small updates prevent the model from overwriting its existing knowledge when learning from the small number of failure cases.
@@ -701,8 +810,7 @@ This means the AI continuously improves from real-world operator feedback — no
 100 corrections as the retraining threshold is supported by active learning research showing that smaller batches produce noisy, inconsistent updates while larger batches introduce too long a delay between improvement cycles (Mosqueira-Rey et al., 2023).
 
 **Citations:**
-
-- Mosqueira-Rey, E., Hernández-Pereira, E., Alonso-Ríos, D., Bobes-Bascarán, J., & Fernández-Leal, Á. (2023). Human-in-the-loop machine learning: A state of the art. *Artificial Intelligence Review*, *56*(4), 3005–3054. <https://doi.org/10.1007/s10462-022-10246-w>
+- Mosqueira-Rey, E., Hernández-Pereira, E., Alonso-Ríos, D., Bobes-Bascarán, J., & Fernández-Leal, Á. (2023). Human-in-the-loop machine learning: A state of the art. *Artificial Intelligence Review*, *56*(4), 3005–3054. https://doi.org/10.1007/s10462-022-10246-w
 - Menke, J., et al. (2024). Active learning strategies for robust industrial machine vision. *(Cite per project reference)*
 
 ---
@@ -711,7 +819,7 @@ This means the AI continuously improves from real-world operator feedback — no
 
 ### What the model is doing
 
-YOLOv8m-seg (You Only Look Once, version 8, medium-size, segmentation variant) is the specific AI architecture we use. It does two things simultaneously for every photo it processes: it identifies each object (classification) and it draws a precise pixel-level outline around each object (segmentation).
+YOLOv8s-seg (You Only Look Once, version 8, small-size, segmentation variant) is the specific AI architecture we use. It does two things simultaneously for every photo it processes: it identifies each object (classification) and it draws a precise pixel-level outline around each object (segmentation).
 
 The segmentation capability matters for two reasons. First, on a conveyor belt with overlapping items, knowing which pixels belong to which object is necessary for accurate counting and routing. Second, the precise outline feeds back into the confidence score — if the model cannot draw a clean outline around a battery, it should not be highly confident about its battery classification.
 
@@ -719,7 +827,7 @@ The segmentation capability matters for two reasons. First, on a conveyor belt w
 
 Every photo passes through three sequential layers inside the model:
 
-#### Layer 1 — The Visual Reading Engine (CSP-DarkNet Backbone)
+**Layer 1 — The Visual Reading Engine (CSP-DarkNet Backbone)**
 
 This layer reads the raw photo and extracts visual patterns: edges (where does one surface end and another begin?), textures (is this surface smooth, ridged, or rough?), shapes (is this object cylindrical, flat, or irregular?), and colours at multiple levels of detail.
 
@@ -727,11 +835,11 @@ The model processes the same photo at multiple zoom levels simultaneously — a 
 
 This layer was pre-trained on 330,000 photos of 80 everyday objects. It already knows how to see. We do not retrain it — we reuse it.
 
-#### Layer 2 — The Scale Merger (PANet Neck)
+**Layer 2 — The Scale Merger (PANet Neck)**
 
 The reading engine produces separate outputs for each zoom level. The scale merger combines these into a single unified understanding of the photo — ensuring that a small battery partially hidden under a plastic bag is still detected, because the close-up view caught the metallic edge even though the wide view showed only plastic.
 
-#### Layer 3 — The Decision Head (Decoupled Classification + Segmentation)
+**Layer 3 — The Decision Head (Decoupled Classification + Segmentation)**
 
 This is where the model makes its final outputs. Critically, the decision head has two separate sub-components: one for classification (what is this object?) and one for segmentation (what is its exact outline?). These two sub-components do not share parameters.
 
@@ -741,18 +849,18 @@ Earlier models combined classification and segmentation into a single component.
 
 | Alternative | Reason not chosen |
 |-------------|------------------|
-| YOLOv8l-seg (larger version) | Higher compute cost with diminishing accuracy returns for a 9-class problem; YOLOv8m-seg is the validated sweet spot in literature |
+| YOLOv8m-seg (medium version) | Upgrade path if YOLOv8s-seg cannot reach ≥ 0.85 after Phase 8 tuning — higher parameter count, higher compute cost |
+| YOLOv8l-seg (large version) | Higher compute cost with diminishing accuracy returns for a 9-class problem; reserved if both s and m variants fail to meet targets |
 | YOLOv8n-seg (smaller version) | Tested on waste classification — accuracy insufficient for a 9-class problem |
 | EfficientDet | Slower inference; benchmarked at >500ms per image on standard GPU — fails the 25 FPS gate |
 | Detectron2 | Strong research pedigree but designed for research, not real-time deployment; also exceeds 500ms per image |
 
-The medium-size variant (m) is the practical balance point: it reaches the accuracy targets in peer-reviewed literature while remaining fast enough for real-time conveyor processing (Ding et al., 2024).
+The small variant (s) is the starting point: faster training cycles allow rapid iteration through Phases 7 and 8. If Phase 8 tuning exhausts all 8 runs and still cannot reach mAP@0.5 ≥ 0.85, the upgrade path is YOLOv8m-seg — the medium variant adds ~15M parameters and typically gains 3–5% mAP on the same dataset (Ding et al., 2024).
 
 **Citations:**
-
-- Ding, R., et al. (2024). *IICAIET 2024*. <https://doi.org/10.1109/iicaiet62352.2024.10730703>
-- Jaikumar, P., Vandaele, R., & Ojha, V. (2020). Transfer learning for instance segmentation of waste bottles using Mask R-CNN. *ISDA 2020*, vol. 1351, 140–149. <https://doi.org/10.1007/978-3-030-71187-0_13>
-- White, G., Cabrera, C., Palade, A., & Li, F. (2020). WasteNet: Waste classification at the edge for smart bins. *arXiv*, 2006.05873. <https://doi.org/10.48550/arXiv.2006.05873>
+- Ding, R., et al. (2024). *IICAIET 2024*. https://doi.org/10.1109/iicaiet62352.2024.10730703
+- Jaikumar, P., Vandaele, R., & Ojha, V. (2020). Transfer learning for instance segmentation of waste bottles using Mask R-CNN. *ISDA 2020*, vol. 1351, 140–149. https://doi.org/10.1007/978-3-030-71187-0_13
+- White, G., Cabrera, C., Palade, A., & Li, F. (2020). WasteNet: Waste classification at the edge for smart bins. *arXiv*, 2006.05873. https://doi.org/10.48550/arXiv.2006.05873
 
 ---
 
@@ -790,9 +898,8 @@ When 100 corrections accumulate, a fine-tuning retrain is automatically triggere
 This feedback loop means the system deployed in month 1 and the system running in month 6 are not the same model. Month 6 has learned from thousands of real-world corrections that the original training data could never have anticipated.
 
 **Citations:**
-
-- Mosqueira-Rey, E., et al. (2023). Human-in-the-loop machine learning: A state of the art. *Artificial Intelligence Review*, *56*(4), 3005–3054. <https://doi.org/10.1007/s10462-022-10246-w>
-- Sakr, G. E., et al. (2022). Computer vision for solid waste sorting. *Waste Management*, *142*, 29–43. <https://doi.org/10.1016/j.wasman.2022.02.009>
+- Mosqueira-Rey, E., et al. (2023). Human-in-the-loop machine learning: A state of the art. *Artificial Intelligence Review*, *56*(4), 3005–3054. https://doi.org/10.1007/s10462-022-10246-w
+- Sakr, G. E., et al. (2022). Computer vision for solid waste sorting. *Waste Management*, *142*, 29–43. https://doi.org/10.1016/j.wasman.2022.02.009
 
 ---
 
@@ -802,7 +909,7 @@ This feedback loop means the system deployed in month 1 and the system running i
 
 We measure at four points across the project. Each point must be a measurable improvement over the previous one. If any step fails to improve on the previous benchmark, that step failed — regardless of how good the final number looks.
 
-```text
+```
 BENCHMARK 1          BENCHMARK 3          BENCHMARK 2          FINAL TARGET
 ─────────────        ─────────────        ─────────────        ─────────────
 Blind majority       Per-person           Full merged          Tuned master
@@ -815,7 +922,6 @@ after balancing)
 ```
 
 **Reading rule:**
-
 - If Benchmark 2 ≤ Benchmark 3: the data merge made things worse. Go back to Phase 6.
 - If Final Target ≤ Benchmark 2: tuning added no value. Review Phase 8 decisions.
 - If Final Target > all benchmarks: every stage contributed measurable improvement.
@@ -832,14 +938,13 @@ Every target has at least one realistic failure mode. Knowing these in advance m
 
 ---
 
-### Risk: Battery cannot be distinguished from metal cans
+**Risk: Battery cannot be distinguished from metal cans**
 
 What it threatens: Battery accuracy (≥ 80%) and the zero-tolerance Phase 9 gate
 
 Why it happens: At 640-pixel camera resolution, a 9-volt battery and an aluminium drink can share nearly identical visual features — metallic surface, cylindrical shape, similar size. The model at default settings will confuse them regularly.
 
 How we mitigate it:
-
 1. Phase 8 Run 1 increases image resolution to 1280 pixels — giving the model four times more pixel information per object
 2. Phase 8 Run 2 upweights battery in the loss function — the model is penalised more for battery mistakes
 3. At deployment, battery confidence threshold is set to 90%, not 85% — uncertain battery detections always go to human review
@@ -847,53 +952,49 @@ How we mitigate it:
 
 ---
 
-### Risk: The model always guesses food/organic waste
+**Risk: The model always guesses food/organic waste**
 
 What it threatens: Precision and recall on minority classes (battery, cardboard, textile)
 
 Why it happens: Food/organic waste accounts for 139,909 photos in the raw dataset — 61.5% of all images. Without intervention, the model learns the statistical shortcut: "when unsure, guess food waste."
 
 How we mitigate it:
-
 - Phase 6 hard cap at 5,000 images per category makes all 9 classes equally represented in training
 - The 11.1% baseline makes this problem visible: if the model scores near 61.5%, it has not learned the balance; if it scores near 11.1%, it has also not learned; the target ≥ 85% requires genuinely distinguishing all 9 classes
 
 ---
 
-### Risk: The model performs well on training photos but fails on new photos
+**Risk: The model performs well on training photos but fails on new photos**
 
 What it threatens: Generalisation gap (≤ 10%)
 
 Why it happens: AI models can memorise training photos — learning to recognise specific images rather than general patterns. This happens when training photos appear multiple times (duplicates) or when the model is over-trained on the same limited set.
 
 How we mitigate it:
-
 - Phase 1 perceptual hash deduplication removes near-identical images before training
 - Phase 9 uses 100 photos locked away since Phase 1 — no part of the pipeline has ever seen them — as the honest performance test
 - The stratified 80/20 split with verified zero overlap ensures validation is genuinely separate from training
 
 ---
 
-### Risk: Items overlap on the conveyor and confuse the AI
+**Risk: Items overlap on the conveyor and confuse the AI**
 
 What it threatens: mAP@0.5:0.95 (≥ 70%) — the strict boundary accuracy metric
 
 Why it happens: Training photos typically show one or two items per image. Real conveyor belt photos show items piled, overlapping, and partially obscured.
 
 How we mitigate it:
-
 - Phase 8 Run 3 (copy-paste augmentation) synthetically creates overlapping item scenarios during training, teaching the model strategies for handling partial occlusion before it encounters these scenarios in the real world
 
 ---
 
-### Risk: The operator always clicks "confirm" without really checking
+**Risk: The operator always clicks "confirm" without really checking**
 
 What it threatens: Active learning loop quality — if all corrections are wrong, the retrain degrades performance
 
 Why it happens: Operators under time pressure may rubber-stamp Yellow Zone items without careful review. This is a known failure mode in HITL systems (Mosqueira-Rey et al., 2023).
 
 How we mitigate it:
-
 - The system logs the time between when a Yellow Zone item appears and when the operator makes a decision. Suspiciously fast decisions (sub-second confirmations) are flagged for audit
 - The Phase 9 generalisation test is repeated after every fine-tuning cycle — if a retrain degraded performance, the anomaly is detected immediately and investigated
 
@@ -905,25 +1006,29 @@ How we mitigate it:
 
 ### Peer-Reviewed Journals and Conference Proceedings
 
-Assoesoedarso, G., Widjaja, D., & Iskandar, A. A. (2024). Comparative evaluation of perceptual hashing and deep embedding methods for robust and efficient image deduplication. *Electronics*, *15*(7), 1493. <https://doi.org/10.3390/electronics15071493>
+Abo-Zahhad, M. M., & Abo-Zahhad, M. (2025). Real-time intelligent garbage monitoring and efficient collection using YOLOv8 and YOLOv5 deep learning models for environmental sustainability. *Scientific Reports*, *15*, 16024. https://doi.org/10.1038/s41598-025-99885-x *(SGD, lr=0.01, momentum=0.95, batch=16 — Phase 7 optimizer and lr0 support)* ⚠️
 
-Ding, R., Jiang, K., Cheng, G., Liu, Z., Yang, Q., Zhou, Z., Bi, S., & Xiao, N. (2024). Performance comparison of YOLOv5, YOLOv8, and RCNN for waste detection and classification. *2024 IEEE International Conference on Artificial Intelligence in Engineering and Technology (IICAIET)*, 1–7. <https://doi.org/10.1109/iicaiet62352.2024.10730703>
+Ajayi, O. G., Ibrahim, P. O., & Adegboyega, O. S. (2024). Effect of hyperparameter tuning on the performance of YOLOv8 for multi crop classification on UAV images. *Applied Sciences*, *14*(13), 5708. https://doi.org/10.3390/app14135708 *(Empirical YOLOv8 hyperparameter tuning study — epochs, lr0, batch size)* ⚠️
 
-Ghiasi, G., Cui, Y., Srinivas, A., Qian, R., Lin, T.-Y., Cubuk, E. D., Le, Q. V., & Zoph, B. (2021). Simple copy-paste is a strong data augmentation method for instance segmentation. *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*, 2918–2928. <https://doi.org/10.1109/CVPR46437.2021.00294>
+Assoesoedarso, G., Widjaja, D., & Iskandar, A. A. (2024). Comparative evaluation of perceptual hashing and deep embedding methods for robust and efficient image deduplication. *Electronics*, *15*(7), 1493. https://doi.org/10.3390/electronics15071493
 
-Jaikumar, P., Vandaele, R., & Ojha, V. (2020). Transfer learning for instance segmentation of waste bottles using Mask R-CNN algorithm. In *Intelligent Systems Design and Applications* (Vol. 1351, pp. 140–149). Springer. <https://doi.org/10.1007/978-3-030-71187-0_13>
+Ding, R., Jiang, K., Cheng, G., Liu, Z., Yang, Q., Zhou, Z., Bi, S., & Xiao, N. (2024). Performance comparison of YOLOv5, YOLOv8, and RCNN for waste detection and classification. *2024 IEEE International Conference on Artificial Intelligence in Engineering and Technology (IICAIET)*, 1–7. https://doi.org/10.1109/iicaiet62352.2024.10730703
 
-Bochkovskiy, A., Wang, C.-Y., & Liao, H.-Y. M. (2020). YOLOv4: Optimal speed and accuracy of object detection. *arXiv*, 2004.10934. <https://doi.org/10.48550/arXiv.2004.10934> *(Mosaic augmentation — introduced here, carried into YOLOv8)*
+Ghiasi, G., Cui, Y., Srinivas, A., Qian, R., Lin, T.-Y., Cubuk, E. D., Le, Q. V., & Zoph, B. (2021). Simple copy-paste is a strong data augmentation method for instance segmentation. *Proceedings of the IEEE/CVF Conference on Computer Vision and Pattern Recognition (CVPR)*, 2918–2928. https://doi.org/10.1109/CVPR46437.2021.00294
 
-Jocher, G., Chaurasia, A., & Qiu, J. (2023). *Ultralytics YOLO* (Version 8.0.0) [Software]. GitHub. <https://github.com/ultralytics/ultralytics> *(Primary reference for all Phase 7 default parameter values)*
+Jaikumar, P., Vandaele, R., & Ojha, V. (2020). Transfer learning for instance segmentation of waste bottles using Mask R-CNN algorithm. In *Intelligent Systems Design and Applications* (Vol. 1351, pp. 140–149). Springer. https://doi.org/10.1007/978-3-030-71187-0_13
 
-Lin, T.-Y., Goyal, P., Girshick, R., He, K., & Dollár, P. (2017). Focal loss for dense object detection. *Proceedings of the IEEE International Conference on Computer Vision (ICCV)*, 2980–2988. <https://doi.org/10.1109/ICCV.2017.324> *(Phase 8 Extended Run 6 — focal loss for hard minority classes)*
+Bochkovskiy, A., Wang, C.-Y., & Liao, H.-Y. M. (2020). YOLOv4: Optimal speed and accuracy of object detection. *arXiv*, 2004.10934. https://doi.org/10.48550/arXiv.2004.10934 *(Mosaic augmentation — introduced here, carried into YOLOv8)*
 
-Loshchilov, I., & Hutter, F. (2019). Decoupled weight decay regularization. *Proceedings of ICLR 2019*. <https://doi.org/10.48550/arXiv.1711.05101> *(Phase 8 Extended Run 5 — AdamW optimizer)*
+Jocher, G., Chaurasia, A., & Qiu, J. (2023). *Ultralytics YOLO* (Version 8.0.0) [Software]. GitHub. https://github.com/ultralytics/ultralytics *(Primary reference for all Phase 7 default parameter values)*
 
-Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016). Rethinking the Inception architecture for computer vision. *Proceedings of CVPR*, 2818–2826. <https://doi.org/10.1109/CVPR.2016.308> *(Phase 8 Extended Run 8 — label smoothing)*
+Lin, T.-Y., Goyal, P., Girshick, R., He, K., & Dollár, P. (2017). Focal loss for dense object detection. *Proceedings of the IEEE International Conference on Computer Vision (ICCV)*, 2980–2988. https://doi.org/10.1109/ICCV.2017.324 *(Phase 8 Extended Run 6 — focal loss for hard minority classes)*
 
-Zhang, H., Cissé, M., Dauphin, Y. N., & Lopez-Paz, D. (2018). mixup: Beyond empirical risk minimization. *Proceedings of ICLR 2018*. <https://doi.org/10.48550/arXiv.1710.09412> *(Phase 8 Extended Run 7 — mixup augmentation)*
+Loshchilov, I., & Hutter, F. (2019). Decoupled weight decay regularization. *Proceedings of ICLR 2019*. https://doi.org/10.48550/arXiv.1711.05101 *(Phase 8 Extended Run 5 — AdamW optimizer)*
+
+Szegedy, C., Vanhoucke, V., Ioffe, S., Shlens, J., & Wojna, Z. (2016). Rethinking the Inception architecture for computer vision. *Proceedings of CVPR*, 2818–2826. https://doi.org/10.1109/CVPR.2016.308 *(Phase 8 Extended Run 8 — label smoothing)*
+
+Zhang, H., Cissé, M., Dauphin, Y. N., & Lopez-Paz, D. (2018). mixup: Beyond empirical risk minimization. *Proceedings of ICLR 2018*. https://doi.org/10.48550/arXiv.1710.09412 *(Phase 8 Extended Run 7 — mixup augmentation)*
 
 Menke, J., Reischl, M., & Mikut, R. (2024). Active learning strategies for robust industrial machine vision applications. *(Verify full journal citation and DOI before submission)*
 
@@ -935,23 +1040,31 @@ Wirth, R., & Hipp, J. (2000). CRISP-DM: Towards a standard process model for dat
 
 Midigudla, S. R. K., Suresh, A., Smolarski, J., & Elamer, A. A. (2025). AI-driven waste classification system using YOLOv8 for sustainable waste management. *(Verify full journal citation and DOI before submission)*
 
-Mosqueira-Rey, E., Hernández-Pereira, E., Alonso-Ríos, D., Bobes-Bascarán, J., & Fernández-Leal, Á. (2023). Human-in-the-loop machine learning: A state of the art. *Artificial Intelligence Review*, *56*(4), 3005–3054. <https://doi.org/10.1007/s10462-022-10246-w>
+Mosqueira-Rey, E., Hernández-Pereira, E., Alonso-Ríos, D., Bobes-Bascarán, J., & Fernández-Leal, Á. (2023). Human-in-the-loop machine learning: A state of the art. *Artificial Intelligence Review*, *56*(4), 3005–3054. https://doi.org/10.1007/s10462-022-10246-w
 
-Northcutt, C. G., Jiang, L., & Chuang, I. L. (2021). Confident learning: Estimating uncertainty in dataset labels. *Journal of Artificial Intelligence Research*, *70*, 1055–1093. <https://doi.org/10.1613/jair.1.12125>
+Northcutt, C. G., Jiang, L., & Chuang, I. L. (2021). Confident learning: Estimating uncertainty in dataset labels. *Journal of Artificial Intelligence Research*, *70*, 1055–1093. https://doi.org/10.1613/jair.1.12125
 
-Sakr, G. E., Mokbel, M. F., & Darwish, A. I. (2022). Computer vision for solid waste sorting: A critical review of academic research. *Waste Management*, *142*, 29–43. <https://doi.org/10.1016/j.wasman.2022.02.009>
+Prechelt, L. (1998). Early stopping — but when? In G. Orr & K.-R. Müller (Eds.), *Neural Networks: Tricks of the Trade* (Lecture Notes in Computer Science, vol. 1524, pp. 55–69). Springer. https://doi.org/10.1007/3-540-49430-8_3 *(Early stopping concept — patience parameter rationale)*
+
+Ren, Y., Li, Y., & Gao, X. (2024). An MRS-YOLO model for high-precision waste detection and classification. *Sensors*, *24*(13), 4339. https://doi.org/10.3390/s24134339 *(Waste classification — Adam, lr=1×10⁻⁴, batch=16, epochs=300, imgsz=640)* ⚠️
+
+Sakr, G. E., Mokbel, M. F., & Darwish, A. I. (2022). Computer vision for solid waste sorting: A critical review of academic research. *Waste Management*, *142*, 29–43. https://doi.org/10.1016/j.wasman.2022.02.009
+
+Steindl, G., Baca, A., & Kornfeind, P. (2025). Influences and training strategies for effective object detection in challenging environments using YOLO NAS-L. *Sensors*, *26*(1), 190. https://doi.org/10.3390/s26010190 *(Batch size, imgsz=640, pretrained COCO weights analysis)* ⚠️
+
+Wang, Z., Zhang, Z., Wang, T., Zhang, X., Ren, Z., & Zhang, Y. (2026). Garbage recognition based on YOLOv8-seg: An instance segmentation approach for automated waste sorting. *International Core Journal of Engineering*, *12*(4), 267–278. https://doi.org/10.6919/ICJE.202604_12(4).0029 *(Primary reference — YOLOv8-seg applied to garbage segmentation on TACO; mask mAP@50 = 82.6%; direct precedent for Phase 7 initial model configuration)*
 
 ### arXiv Preprints
 
-Kertész, C. (2021). Automated cleanup of the ImageNet dataset by model consensus, explainability and confident learning. *arXiv*, 2103.16324. <https://doi.org/10.48550/arXiv.2103.16324> ⚠️
+Kertész, C. (2021). Automated cleanup of the ImageNet dataset by model consensus, explainability and confident learning. *arXiv*, 2103.16324. https://doi.org/10.48550/arXiv.2103.16324 ⚠️
 
-White, G., Cabrera, C., Palade, A., & Li, F. (2020). WasteNet: Waste classification at the edge for smart bins. *arXiv*, 2006.05873. <https://doi.org/10.48550/arXiv.2006.05873> ⚠️
+White, G., Cabrera, C., Palade, A., & Li, F. (2020). WasteNet: Waste classification at the edge for smart bins. *arXiv*, 2006.05873. https://doi.org/10.48550/arXiv.2006.05873 ⚠️
 
 ---
 
 ## PART 10 — PRE-TRAINING CHECKLIST
 
-```text
+```
 Before Phase 7:
 [ ] All [SUGGESTED] ranges replaced with actual training results after runs complete
 [ ] Battery AP confirmed as a SEPARATE column in the training results CSV
